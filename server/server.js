@@ -5,6 +5,7 @@ const path = require('node:path');// Módulo Path de Node.js para manejar rutas 
 const os = require('node:os');// Módulo OS de Node.js para obtener información del sistema
 const mongoose = require('mongoose');// Importa Mongoose para manejar la base de datos MongoDB
 const dotenv = require('dotenv'); //Para cargar variables de entorno desde .env
+const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes
 
 
 //Importar las rutas modularizadas
@@ -13,7 +14,13 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const characterRoutes = require('./routes/characterRoutes');
 
 dotenv.config();// Carga las variables de entorno desde el archivo .env
-console.log('DEBUG: JWT_SECRET cargado en server.js:', process.env.JWT_SECRET);
+
+// Configuración de Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();// Crea una instancia de la aplicación Express
 const server = http.createServer(app);// Crea un servidor HTTP usando la aplicación Express
