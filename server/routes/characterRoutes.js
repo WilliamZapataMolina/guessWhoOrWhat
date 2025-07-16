@@ -1,6 +1,6 @@
-// server/routes/characterRoutes.js
 const express = require('express');
 const router = express.Router();
+
 const characterController = require('../controllers/characterController'); // Importa el controlador de personajes
 
 // Rutas para PERSONAJES

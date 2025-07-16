@@ -1,5 +1,6 @@
 // server/controllers/characterController.js
 const Character = require('../models/Character'); // Importa el modelo Character
+const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes
 const Category = require('../models/Category');   // También necesitamos Category para validar categoryId
 
 // Crear un nuevo personaje/elemento
