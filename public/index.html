@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Who or guess What</title>
+    <link rel="stylesheet" href="thirdparty/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+    <header>
+        <h1>Guess Who Or What</h1>
+    </header>
+
+    <main>
+        <section id="auth-section">
+            <h2>Regístrate o Inicia Sesión</h2>
+            <div class="form-container">
+                <input type="email" id="email" placeholder="Correo Electrónico" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button id="registerButton">Registrar</button>
+                <button id="loginButton">Inicia Sesión</button>
+            </div>
+            <p id="message" class="message"></p>
+        </section>
+
+        <section id="game-section" style="display: none;">
+            <h2>!Bienvenido al juego</h2>
+            <p>Estas logueado como: <span id="userEmail"></span></p>
+            <button id="logoutButton">Cerrar Sesión</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 William Zapata - Guess Who or What</p>
+    </footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="thirdparty/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/script.js"></script>
+
+</body>
+</html>
