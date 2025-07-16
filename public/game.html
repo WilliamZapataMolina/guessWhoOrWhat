@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Who Or What - El Juego</title>
+    <link rel="stylesheet" href="css/style.css"> </head>
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="/game" class="logo">Guess Who Or What</a>
+            <div class="nav-links">
+                <button id="newGameBtn">Nueva Partida</button>
+                <button id="endGameBtn">Terminar Partida</button>
+                <a href="/profile" class="profile-link">Mi Perfil</a>
+                <button id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="game-container">
+        <aside class="player-info">
+            <div class="player-avatar-section">
+                <img id="playerAvatar" src="images/default-avatar.png" alt="Avatar del Jugador">
+                <span id="playerName"></span>
+            </div>
+            </aside>
+
+        <section class="game-board">
+            <div id="characterCardsContainer" class="cards-grid">
+                </div>
+        </section>
+
+        <aside class="game-controls">
+            <div class="chosen-character-card">
+                <h3>Tu Personaje Secreto</h3>
+                <img id="secretCharacterImage" src="images/placeholder-secret.png" alt="Personaje Secreto">
+                </div>
+
+            <div class="game-actions">
+                <textarea id="questionInput" placeholder="Haz una pregunta..."></textarea>
+                <button id="askQuestionBtn">Preguntar</button>
+                <button id="guessCharacterBtn">Adivinar</button>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/game.js"></script> </body>
+</html>

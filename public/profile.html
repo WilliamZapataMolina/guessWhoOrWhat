@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Who Or What - Mi Perfil</title>
+    <link rel="stylesheet" href="css/style.css"> </head>
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="/game" class="logo">Guess Who Or What</a>
+            <div class="nav-links">
+                <a href="/game" class="game-link">Volver al Juego</a>
+                <button id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="profile-container">
+        <h1>Mi Perfil</h1>
+        <section class="avatar-section">
+            <h2>Mi Avatar</h2>
+            <img id="currentAvatar" src="images/default-avatar.png" alt="Avatar Actual">
+            <input type="file" id="avatarUpload" accept="image/*">
+            <button id="saveAvatarBtn">Guardar Avatar</button>
+            <input type="text" id="aliasInput" placeholder="Elige un alias">
+            <button id="saveAliasBtn">Guardar Alias</button>
+        </section>
+
+        <section class="stats-section">
+            <h2>Mis Estadísticas</h2>
+            <p>Partidas Jugadas: <span id="gamesPlayed">0</span></p>
+            <p>Victorias: <span id="wins">0</span></p>
+            <p>Derrotas: <span id="losses">0</span></p>
+            </section>
+    </main>
+
+    <script src="js/profile.js"></script> </body>
+</html>

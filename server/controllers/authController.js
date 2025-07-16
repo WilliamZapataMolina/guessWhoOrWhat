@@ -2,7 +2,6 @@ const User = require('../models/User'); // Importa el modelo User
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET; // Accede al secreto JWT del entorno
 
 // Función para registrar un nuevo usuario
 exports.registerUser = async (req, res) => {
@@ -21,7 +20,7 @@ exports.registerUser = async (req, res) => {
         const newUser = new User({ email, password });
         await newUser.save();
 
-        const token = jwt.sign({ userId: newUser._id, email: newUser.email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: newUser._id, email: newUser.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
             message: 'Usuario registrado exitosamente.',
@@ -62,7 +61,7 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
 
-        const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({
             message: 'Inicio de sesión exitoso.',

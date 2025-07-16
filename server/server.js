@@ -13,6 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const characterRoutes = require('./routes/characterRoutes');
 
 dotenv.config();// Carga las variables de entorno desde el archivo .env
+console.log('DEBUG: JWT_SECRET cargado en server.js:', process.env.JWT_SECRET);
 
 const app = express();// Crea una instancia de la aplicación Express
 const server = http.createServer(app);// Crea un servidor HTTP usando la aplicación Express
@@ -48,6 +49,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
+// Ruta para el juego
+app.get('/game', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'game.html'));
+});
+
+//Ruta para el perfil de usuario
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'profile.html'));
+});
 // Lógica de Socket.IO (comunicación en tiempo real)
 io.on('connection', (socket) => {
     console.log(`Un usuario se ha conectado: ${socket.id}`);

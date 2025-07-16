@@ -66,7 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Opcional: Autologuear después de registrar
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userEmail', data.user.email);
-                updateUI();
+                localStorage.setItem('userId', data.user.id);
+
+                showMessage(data.message + '. Redirigiendo...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/game';
+                }, 1000);
             } else {
                 showMessage(`Error al registrar: ${data.message}`, 'error');
             }
@@ -75,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('Error de conexión con el servidor al registrar.', 'error');
         }
     });
+
 
     loginButton.addEventListener('click', async () => {
         const email = emailInput.value;
@@ -97,10 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) { // Si el estado es 2xx (ej. 200 OK)
-                showMessage(data.message, 'success');
                 localStorage.setItem('token', data.token); // Guarda el token en localStorage
                 localStorage.setItem('userEmail', data.user.email); // Guarda el email del usuario
-                updateUI(); // Actualiza la UI para mostrar la sección del juego
+                localStorage.setItem('userId', data.user.id); // Guarda el ID del usuario
+
+
+                showMessage(data.message + '. Redirigiendo al juego...', 'success');
+                setTimeout(() => { // Opcional: un pequeño retraso para que el usuario vea el mensaje
+                    window.location.href = '/game'; // Redirige al usuario a /game
+                }, 1000); // Redirige después de 1 segundo
+
             } else {
                 showMessage(`Error al iniciar sesión: ${data.message}`, 'error');
             }
@@ -113,8 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutButton.addEventListener('click', () => {
         localStorage.removeItem('token'); // Elimina el token
         localStorage.removeItem('userEmail'); // Elimina el email
+        localStorage.removeItem('userId'); // Elimina el ID del usuario
         showMessage('Sesión cerrada exitosamente.', 'info');
-        updateUI(); // Actualiza la UI para mostrar la sección de autenticación
+        setTimeout(() => {
+            window.location.href = '/'; // Redirige a la página principal (index.html)
+        }, 1000);
     });
 
     // Al cargar la página, verifica si ya hay un token para mostrar la UI correcta
