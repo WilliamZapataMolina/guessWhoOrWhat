@@ -2,6 +2,7 @@
 const Character = require('../models/Character'); // Importa el modelo Character
 const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes
 const Category = require('../models/Category');   // También necesitamos Category para validar categoryId
+const mongoose = require('mongoose');
 
 // Crear un nuevo personaje/elemento
 exports.createCharacter = async (req, res) => {
@@ -102,5 +103,118 @@ exports.deleteCharacter = async (req, res) => {
     } catch (error) {
         console.error('Error al eliminar personaje:', error);
         res.status(500).json({ message: 'Error interno del servidor al eliminar el personaje/elemento.' });
+    }
+};
+/**
+ * @desc Obtiene todos los personajes de una o varias categorías específicas.
+ * @route GET /api/characters/byCategories?categoryIds=id1,id2,id3
+ * @access Public
+ */
+exports.getCharactersByCategories = async (req, res) => {
+    // Los IDs de categoría se esperan como una cadena separada por comas en la query
+    const categoryIdsString = req.query.categoryIds;
+
+    if (!categoryIdsString) {
+        return res.status(400).json({ message: 'Se requiere al menos un ID de categoría.' });
+    }
+    try {
+        // Convierte la cadena de IDs en un array de ObjectIds
+        const categoryObjectIds = categoryIdsString.split(',').map(id => new mongoose.Types.ObjectId(id.trim()));
+
+        // Opcional: Verificar que todas las categorías existan (puede ser costoso si hay muchos IDs)
+        // Para simplificar, asumiremos que los IDs proporcionados son válidos.
+
+        const characters = await Character.find({ categoryId: { $in: categoryObjectIds } }).populate('categoryId', 'name');
+
+        if (characters.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron personajes para las categorías especificadas.' });
+        }
+
+        res.status(200).json(characters);
+    } catch (error) {
+        console.error('Error al obtener personajes por categorías:', error);
+        // Manejar errores de formato de ObjectId si la cadena es inválida
+        if (error.name === 'CastError' && error.path === '_id') {
+            return res.status(400).json({ message: 'Uno o más ID de categoría son inválidos.' });
+        }
+        res.status(500).json({ message: 'Error interno del servidor al obtener los personajes por categorías.' });
+    }
+
+};
+/**
+ * @desc Obtiene un conjunto balanceado de personajes aleatorios de categorías específicas para el tablero del juego.
+ * También selecciona uno de ellos como el personaje secreto.
+ * @route POST /api/characters/game/balanced
+ * @body { array } categoryIds - Array de IDs de categoría.
+ * @body { number } [totalCharacters=24] - Número total de personajes deseados en el tablero.
+ * @access Public
+ */
+exports.getBalancedCharactersForGame = async (req, res) => {
+    const { categoryIds, totalCharacters = 24 } = req.body;
+
+    if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
+        return res.status(400).json({ message: 'Se requiere un array de IDs de categoría.' });
+    }
+    if (typeof totalCharacters !== 'number' || totalCharacters <= 0) {
+        return res.status(400).json({ message: 'El número total de personajes debe ser un número positivo.' });
+    }
+
+    try {
+        console.log('Category IDs recibidos:', categoryIds);
+        const categoryObjectIds = categoryIds.map(id => new mongoose.Types.ObjectId(id.trim()));
+
+        // Opcional: Verificar que todas las categorías existan
+        const existingCategories = await Category.find({ _id: { $in: categoryObjectIds } });
+        if (existingCategories.length !== categoryObjectIds.length) {
+            return res.status(404).json({ message: 'Algunas de las categorías especificadas no existen.' });
+        }
+
+        let allSelectedCharacters = [];
+        const numCategories = categoryObjectIds.length;
+        const charactersPerCategoryBase = Math.floor(totalCharacters / numCategories);
+        let remainingCharacters = totalCharacters % numCategories;
+
+        for (let i = 0; i < numCategories; i++) {
+            const currentCategoryId = categoryObjectIds[i];
+            let numToSelect = charactersPerCategoryBase;
+            if (remainingCharacters > 0) {
+                numToSelect++; // Distribuye los caracteres restantes de forma equitativa
+                remainingCharacters--;
+            }
+
+            const selectedFromCategory = await Character.aggregate([
+                { $match: { categoryId: currentCategoryId } },
+                { $sample: { size: numToSelect } }
+            ]);
+            allSelectedCharacters = allSelectedCharacters.concat(selectedFromCategory);
+        }
+
+        // Shuffle final para asegurar que el orden de las cartas sea aleatorio en el tablero
+        // aunque se hayan seleccionado por categoría.
+        for (let i = allSelectedCharacters.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allSelectedCharacters[i], allSelectedCharacters[j]] = [allSelectedCharacters[j], allSelectedCharacters[i]];
+        }
+
+        // Seleccionar el personaje secreto de entre los personajes seleccionados para el tablero
+        if (allSelectedCharacters.length === 0) {
+            return res.status(404).json({ message: 'No se pudieron obtener personajes para el juego con las categorías especificadas.' });
+        }
+        const secretCharacterIndex = Math.floor(Math.random() * allSelectedCharacters.length);
+        const secretCharacter = allSelectedCharacters[secretCharacterIndex];
+
+        // Retornar tanto la lista de personajes para el tablero como el personaje secreto
+        res.status(200).json({
+            boardCharacters: allSelectedCharacters,
+            secretCharacter: secretCharacter
+        });
+
+    } catch (error) {
+        console.error('Error al obtener personajes balanceados para el juego:', error);
+        // Manejar errores de CastError si los IDs no son válidos
+        if (error.name === 'CastError' && error.path === '_id') {
+            return res.status(400).json({ message: 'Uno o más ID de categoría son inválidos.' });
+        }
+        res.status(500).json({ message: 'Error interno del servidor al obtener los personajes balanceados.' });
     }
 };
