@@ -1,26 +1,16 @@
+/* public/css/style.css */
+
 /* --- Estilos Globales y Base --- */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    flex-direction: column; /* Cambiado para que header y footer fijos no rompan el flujo */
-    min-height: 100vh;
-    background-color: #e0f7fa; /* Fondo azul claro, más moderno */
-    color: #333;
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0; /* Asegura que no haya padding extra del body */
+    padding: 0;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex; /* Usar flexbox para el layout principal */
+    flex-direction: column; /* Organizar header, main, footer en columna */
+    min-height: 100vh; /* Asegura que el body ocupe toda la altura de la ventana */
     box-sizing: border-box; /* Incluye padding y borde en el ancho/alto */
-}
-
-/* Ajuste para el contenido principal debido al header/footer fijo */
-main {
-    flex-grow: 1;
-    display: flex;
-    /* justify-content: center; /* Puede no ser necesario aquí si game-container lo maneja */ 
-    align-items: flex-start; /* Alinea arriba para el scroll */
-    padding-top: 70px; /* Espacio para el header fijo (ajusta según altura real de tu header) */
-    padding-bottom: 70px; /* Espacio para el footer fijo (ajusta según altura real de tu footer) */
-    width: 100%;
-    /* max-width: 1200px; /* Se elimina aquí y se usa en .container para flexibilidad */ 
 }
 
 /* Encabezados */
@@ -75,27 +65,40 @@ button:hover {
 }
 
 /* --- Estilos de Layout para Páginas (Navbar, Main, Footer) --- */
-header { /* Tu header original */
-    background-color: #CC0000; /* Rojo */
+header {
+    background-color: #4CAF50; /* Un verde vibrante */
     color: white;
-    padding: 10px 0;
-    text-align: center;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
+    padding: 10px 20px; /* Ajusta este padding si es muy grande */
+    display: flex; /* Para alinear elementos en el header */
+    justify-content: space-between; /* Espacia el título y el usuario/logout */
+    align-items: center; /* Centra verticalmente los ítems */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    flex-shrink: 0; /* Evita que el header se encoja */
+    /* Posicionamiento fijo si el header debe estar siempre visible */
+    /* position: fixed; */
+    /* top: 0; */
+    /* left: 0; */
+    /* width: 100%; */
+    /* z-index: 1000; */
 }
 
-.navbar { /* Tu navbar existente, ahora dentro del header */
-    background-color: #333; /* Color de fondo de la navbar */
+/* Nota: Tu navbar existente, si está dentro del header como en game.html,
+   sus estilos pueden necesitar ajustes específicos para coexistir con el header principal.
+   Si la navbar es un elemento separado del header de "Guess Who?", entonces necesitarías
+   manejar sus estilos por separado. Aquí asumo que el header de game.html ya incluye estos elementos.
+*/
+.navbar { /* Estilos de la navbar dentro del header principal de game.html */
+    /* Si el navbar es una barra de navegación *adicional* debajo del header principal,
+       necesitas posicionarlo y manejar su layout.
+       Si solo es un contenedor de enlaces/botones dentro del header, los estilos a continuación están bien. */
+    background-color: transparent; /* O el color que desees si es parte del header principal */
     color: white;
-    padding: 10px 20px;
+    padding: 0; /* Ya lo maneja el padding del header */
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; /* Alinea los links a la derecha del header */
     align-items: center;
-    width: 100%; /* Ocupa todo el ancho del header */
-    box-sizing: border-box; /* Importante para el padding */
+    width: auto; /* Se ajusta al contenido dentro del header */
+    box-sizing: border-box;
 }
 
 .navbar .logo {
@@ -103,11 +106,18 @@ header { /* Tu header original */
     text-decoration: none;
     font-size: 1.5em;
     font-weight: bold;
+    /* Si tienes un logo separado del h1 del header, este estilo es para ese logo */
+    /* margin-right: auto; /* Empuja los nav-links a la derecha */
+}
+
+.navbar .nav-links {
+    display: flex;
+    align-items: center;
 }
 
 .navbar .nav-links button,
 .navbar .nav-links a {
-    background-color: #555;
+    background-color: #555; /* Un tono más oscuro para los botones de navegación */
     color: white;
     border: none;
     padding: 8px 12px;
@@ -117,8 +127,8 @@ header { /* Tu header original */
     text-decoration: none;
     font-size: 0.9em;
     /* Sobreescribe el estilo general de button para estos botones más pequeños */
-    box-shadow: none; /* Elimina la sombra si no la quieres aquí */
-    transform: none; /* Elimina la transformación de hover si no la quieres */
+    box-shadow: none; /* Elimina la sombra */
+    transform: none; /* Elimina la transformación de hover */
 }
 
 .navbar .nav-links button:hover,
@@ -127,34 +137,48 @@ header { /* Tu header original */
     transform: none; /* Asegura que no haya transformación adicional */
 }
 
-footer { /* Tu footer original */
+main {
+    flex-grow: 1; /* Permite que el contenido principal ocupe todo el espacio disponible */
+    display: flex; /* Para organizar las secciones del juego (lobby, setup, board) */
+    justify-content: center; /* Centra horizontalmente las secciones */
+    align-items: flex-start; /* Alinea las secciones al inicio verticalmente */
+    padding: 20px; /* Añade un poco de padding alrededor del contenido principal */
+    box-sizing: border-box; /* Incluye padding en el tamaño total */
+    overflow-y: auto; /* Permite desplazamiento si el contenido es muy largo */
+    /* Si el header/footer son fijos, ajusta el padding del main para que el contenido no quede debajo de ellos */
+    /* padding-top: 70px; */
+    /* padding-bottom: 70px; */
+}
+
+footer {
     background-color: #333;
     color: #fff;
     padding: 1em 0;
     text-align: center;
     width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
+    flex-shrink: 0; /* Evita que el footer se encoja */
+    /* Si el footer es fijo, descomenta las siguientes líneas */
+    /* position: fixed; */
+    /* bottom: 0; */
+    /* left: 0; */
+    /* z-index: 1000; */
 }
 
 /* --- Contenedores Específicos de Páginas --- */
+/* .game-container se ha fusionado con .game-section para centralizar el control */
 .game-container, .profile-container {
     display: flex;
     padding: 20px;
     gap: 20px;
     width: 100%; /* Ocupa todo el ancho disponible en main */
-    max-width: 1400px; /* Nuevo max-width para el contenido principal */
-    margin: 0 auto; /* Centra el contenedor */
+    max-width: 1400px; /* Ancho máximo para el contenido principal */
+    margin: 0 auto; /* Centra el contenedor dentro del main flex */
     box-sizing: border-box;
+    /* flex-direction se establece en media queries para adaptabilidad */
 }
-/* game-container y profile-container ahora se ajustan dentro del main */
-/* min-height ya no es necesario aquí, lo maneja el body y el padding del main */
-
 
 /* --- Estilos del Formulario de Login/Registro (si aplica a index.html) --- */
-section { /* Para formularios de login/registro */
+section { /* Para formularios de login/registro y game-section ahora */
     background-color: #fff;
     padding: 2em;
     border-radius: 8px;
@@ -203,18 +227,90 @@ textarea { /* Añadido para textarea, como questionInput */
 
 /* --- Estilos del Juego (game.html) --- */
 
-.player-info, .game-controls, .avatar-section, .stats-section {
+/* Sección principal del juego (lobby, setup, game-board) */
+.game-section {
     background-color: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 90%; /* Ocupa el 90% del ancho del main */
+    max-width: 900px; /* Pero con un ancho máximo para pantallas grandes */
+    margin: 20px auto; /* Centra la sección dentro de main */
+    box-sizing: border-box;
+    min-height: 400px; /* Altura mínima para que no se vea vacío */
+    display: flex; /* Usar flexbox para el contenido interno de la sección */
+    flex-direction: column; /* Los elementos dentro de la sección se apilan */
+    align-items: center; /* Centra los elementos horizontalmente */
+    text-align: center; /* Centra el texto */
+    border: 1px solid #b2dfdb; /* Borde suave */
+    background-color: #f0fdfc; /* Fondo muy claro */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 4px 10px rgba(0,0,0,0.1); /* Combina sombras */
 }
 
-.player-info {
+.game-section h2 {
+    color: #4CAF50;
+    margin-bottom: 25px;
+    font-size: 2em;
+}
+
+/* Estilos para el Lobby Específicos */
+.lobby-controls {
+    display: flex;
+    gap: 10px; /* Espacio entre los elementos del lobby */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea en pantallas pequeñas */
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+.lobby-controls input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-grow: 1; /* Permite que el input crezca */
+    max-width: 300px; /* Limita su ancho máximo */
+}
+
+.lobby-controls button {
+    padding: 10px 20px;
+    background-color: #2196F3; /* Azul para botones de acción */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.lobby-controls button:hover {
+    background-color: #1976D2;
+}
+
+#roomMessages {
+    font-size: 1.1em;
+    color: #555;
+    margin-top: 10px;
+    min-height: 25px; /* Para evitar saltos de diseño cuando el texto aparece */
+}
+
+#playerList {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    font-size: 1.1em;
+    color: #666;
+}
+
+/* Estilos de Game Controls y Personaje Secreto */
+.player-info { /* Anteriormente .player-info en game-container */
     flex: 0 0 200px; /* Ancho fijo para la sección del jugador */
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: white; /* Fondo blanco */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .player-avatar-section img, .avatar-section img {
@@ -225,8 +321,8 @@ textarea { /* Añadido para textarea, como questionInput */
     margin-bottom: 10px;
 }
 
-.game-board { /* La <section> que contiene la configuración o el tablero */
-    flex-grow: 1; /* Ocupa el espacio restante */
+.game-board-container { /* Un nuevo contenedor para #gameSetup y #gameBoard */
+    flex-grow: 1; /* Ocupa el espacio restante en .game-container */
     background-color: #fff; /* Fondo blanco para el contenedor general del tablero */
     padding: 15px;
     border-radius: 8px;
@@ -237,17 +333,6 @@ textarea { /* Añadido para textarea, como questionInput */
     justify-content: flex-start; /* Alinea contenido al inicio */
 }
 
-/* Contenedores de las dos secciones del juego */
-.game-section { /* Aplica tanto a #gameSetup como a #gameBoardContent */
-    width: 100%; /* Ocupa todo el ancho dentro de .game-board */
-    margin-bottom: 20px; /* Espacio entre secciones si ambas fueran visibles */
-    padding: 25px;
-    border: 1px solid #b2dfdb; /* Borde suave */
-    border-radius: 10px;
-    background-color: #f0fdfc; /* Fondo muy claro */
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Sombra interna sutil */
-    box-sizing: border-box;
-}
 
 /* Estilos para la cuadrícula de categorías */
 .category-grid {
@@ -289,9 +374,8 @@ textarea { /* Añadido para textarea, como questionInput */
     color: #004d40;
 }
 
-
-/* Estilos para la cuadrícula de personajes */
-.cards-grid { /* Tu selector original, ahora con los estilos de grid */
+/* Estilos para la cuadrícula de personajes (Tablero de Juego) */
+.character-grid { /* Este es tu cards-grid, lo he renombrado para consistencia */
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 18px;
@@ -300,6 +384,8 @@ textarea { /* Añadido para textarea, como questionInput */
     border-radius: 10px;
     box-shadow: inset 0 1px 5px rgba(0,0,0,0.07);
     width: 100%; /* Asegura que la cuadrícula ocupe el espacio disponible */
+    max-width: 800px; /* Limita el ancho máximo del grid para que no se estire demasiado */
+    margin: 20px auto; /* Centra el grid */
 }
 
 .character-card {
@@ -318,6 +404,8 @@ textarea { /* Añadido para textarea, como questionInput */
     justify-content: center;
     align-items: center;
     min-height: 180px;
+    transform-style: preserve-3d; /* Para la animación 3D de volteo */
+    perspective: 1000px;
 }
 
 .character-card:hover {
@@ -349,10 +437,19 @@ textarea { /* Añadido para textarea, como questionInput */
 .character-card.flipped {
     opacity: 0.2;
     pointer-events: none;
-    transform: scale(0.9);
+    transform: scale(0.9) rotateY(180deg); /* Combina scale y rotateY */
     background-color: #f7f7f7;
     box-shadow: none;
     border: 1px dashed #ccc;
+}
+
+/* Para ocultar el contenido trasero de la carta al voltear (si lo tienes) */
+.character-card.flipped .front-content,
+.character-card .back-content {
+    backface-visibility: hidden;
+}
+.character-card.flipped .back-content {
+    transform: rotateY(180deg);
 }
 
 /* --- Estilos de Game Controls y Personaje Secreto --- */
@@ -361,9 +458,13 @@ textarea { /* Añadido para textarea, como questionInput */
     display: flex;
     flex-direction: column; /* Organiza los elementos verticalmente */
     gap: 20px; /* Espacio entre sub-secciones */
+    background-color: white; /* Fondo blanco */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.chosen-character-card {
+.chosen-character-card { /* Anteriormente .secret-character-display */
     border: 2px dashed #00796b; /* Borde punteado del color principal */
     padding: 20px;
     border-radius: 10px;
@@ -420,6 +521,11 @@ textarea { /* Añadido para textarea, como questionInput */
     gap: 8px; /* Espacio entre botones de atributo */
     margin-top: 10px;
     margin-bottom: 10px;
+    max-height: 300px; /* Altura máxima para las preguntas, con scroll si hay muchas */
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
 }
 
 #attributeQuestions button {
@@ -434,6 +540,11 @@ textarea { /* Añadido para textarea, como questionInput */
 #attributeQuestions button:hover {
     background-color: #388e3c;
     transform: translateY(-1px);
+}
+
+#attributeQuestions button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .game-actions textarea { /* Estilo de textarea general ya aplica */
@@ -466,6 +577,24 @@ textarea { /* Añadido para textarea, como questionInput */
     background-color: #c82333;
 }
 
+/* Clases para el indicador de turno y mensajes de estado */
+#turnIndicator {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#gameStatusMessage {
+    font-size: 1.2em;
+    color: #4CAF50;
+    min-height: 30px; /* Para mantener el espacio */
+}
+
+/* Clase para deshabilitar los controles del juego cuando no es el turno */
+.game-controls.disabled {
+    opacity: 0.7;
+    pointer-events: none; /* Deshabilita clics en todo el contenedor */
+}
 
 /* --- Estilos de Perfil de Usuario (profile.html) --- */
 .profile-container {
@@ -477,6 +606,10 @@ textarea { /* Añadido para textarea, como questionInput */
 .avatar-section, .stats-section {
     margin-bottom: 20px;
     width: 100%; /* Ocupa todo el ancho disponible en la columna */
+    background-color: white; /* Añadido para consistencia */
+    padding: 20px; /* Añadido para consistencia */
+    border-radius: 8px; /* Añadido para consistencia */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Añadido para consistencia */
 }
 
 .avatar-section input[type="file"],
@@ -512,16 +645,16 @@ textarea { /* Añadido para textarea, como questionInput */
         flex-direction: column; /* Apila las secciones en pantallas medianas */
         align-items: center;
     }
-    .player-info, .game-controls, .game-board {
+    .player-info, .game-controls, .game-board-container { /* game-board-container ahora */
         width: 95%; /* Ocupa casi todo el ancho */
         max-width: none; /* Elimina límite de ancho fijo */
         flex: none; /* Elimina flex-grow/basis fijos */
         margin-bottom: 20px;
     }
-    .game-board {
+    .game-board-container { /* game-board-container ahora */
         padding: 10px; /* Menos padding */
     }
-    .cards-grid {
+    .character-grid { /* Tu cards-grid, renombrado */
         grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); /* Más pequeñas */
         gap: 12px;
         padding: 15px;
@@ -550,6 +683,17 @@ textarea { /* Añadido para textarea, como questionInput */
     h3 {
         font-size: 1.2em;
     }
+    header { /* Ajuste del header para pantallas pequeñas */
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+    header h1 {
+        margin-bottom: 5px;
+    }
+    header p, #logoutBtn {
+        margin-top: 5px;
+    }
     .navbar {
         flex-direction: column; /* Apila elementos de la navbar */
         padding: 10px;
@@ -565,17 +709,18 @@ textarea { /* Añadido para textarea, como questionInput */
         margin: 5px; /* Ajusta margen */
     }
     main {
-        padding-top: 120px; /* Más espacio para navbar apilada */
+        /* Ajusta este padding si tu header es fijo o no y qué tan grande es en mobile */
+        /* padding-top: 120px; */
         padding-bottom: 60px;
     }
     .game-container, .profile-container {
         padding: 10px;
         gap: 15px;
     }
-    .player-info, .game-controls, .game-board .game-section {
+    .player-info, .game-controls, .game-board-container .game-section { /* game-board-container ahora */
         padding: 15px;
     }
-    .cards-grid {
+    .character-grid { /* Tu cards-grid, renombrado */
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
         gap: 8px;
         padding: 10px;
@@ -619,7 +764,7 @@ textarea { /* Añadido para textarea, como questionInput */
     .category-item label {
         font-size: 0.9em;
     }
-    .cards-grid {
+    .character-grid { /* Tu cards-grid, renombrado */
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
         gap: 6px;
     }

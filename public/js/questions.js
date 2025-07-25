@@ -57,7 +57,7 @@ function generateAttributeQuestions(boardCharacters, containerElement, secretCha
     containerElement.innerHTML = ''; // Limpiar el contenedor
 
     const uniqueAttributes = extractUniqueAttributes(boardCharacters);
-    console.log('Atributos únicos extraídos para preguntas:', uniqueAttributes);
+
 
     // Iterar sobre cada atributo único y generar botones
     for (const attrKey in uniqueAttributes) {
@@ -130,7 +130,7 @@ function formatAttributeKey(key) {
         'facialHair': 'vello facial',
         'isPresident': 'es presidente',
         'isKingOrQueen': 'es rey o reina',
-        'isAthete': 'es atleta', // Corregido 'isAthete' a 'es atleta'
+        'isAthete': 'es atleta',
         'isMusician': 'es músico/a',
         'hasScars': 'cicatrices',
         'isBald': 'calvicie',

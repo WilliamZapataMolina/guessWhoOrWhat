@@ -3,68 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Who Or What</title>
+    <title>Guess Who? / What?</title>
     <link rel="stylesheet" href="css/style.css">
-    </head>
+</head>
 <body>
-    <header class="navbar">
-        <nav>
-            <a href="/" class="logo">Guess Who Or What</a> <div class="nav-links">
-                <button id="newGameBtn">Nueva Partida</button>
-                <button id="endGameBtn">Terminar Partida</button>
-                <a href="/profile" class="profile-link">Mi Perfil</a>
-                <button id="logoutBtn">Cerrar Sesión</button>
-            </div>
-        </nav>
+    <header>
+        <h1>Guess Who? / What?</h1>
+        <p>¡Bienvenido, <span id="loggedInUserEmail"></span>!</p>
+        <button id="logoutBtn">Cerrar Sesión</button>
     </header>
 
-    <main class="game-container">
-        <aside class="player-info">
-            <div class="player-avatar-section">
-                <img id="playerAvatar" src="images/default-avatar.png" alt="Avatar del Jugador">
-                <span id="playerName">Jugador 1</span> </div>
-            </aside>
-
-        <section class="game-board">
-
-            <div id="gameSetup" class="game-section">
-                <h2>Configuración del Juego</h2>
-                <div id="categorySelection">
-                    <h3>Selecciona Categorías:</h3>
-                    <div id="categoryCheckboxes" class="category-grid">
-                        </div>
-                </div>
-                <button id="startGameBtn">Iniciar Juego</button>
+    <main>
+        <section id="lobby-section" class="game-section">
+            <h2>Lobby de Juego</h2>
+            <div class="lobby-controls">
+                <input type="text" id="roomIdInput" placeholder="ID de la Sala" required>
+                <button id="createRoomBtn">Crear Sala</button>
+                <button id="joinRoomBtn">Unirse a Sala</button>
             </div>
-
-            <div id="gameBoardContent" class="game-section" style="display: none;">
-                <h2>El Tablero</h2>
-                <div id="characterCards" class="cards-grid">
-                    </div>
-            </div>
+            <p id="roomMessages"></p>
+            <ul id="playerList">
+                </ul>
         </section>
 
-        <aside class="game-controls">
-            <div class="chosen-character-card">
-                <h3>Tu Personaje Secreto</h3>
-                <img id="secretCharacterImage" src="images/placeholder-secret.png" alt="Personaje Secreto">
-                <p id="secretCharacterName"></p>
-                <button id="showSecretBtn">Mostrar Secreto (Debug)</button> </div>
+        <section id="gameSetup" class="game-section" style="display: none;">
+            <h2>Selecciona una Categoría</h2>
+            <div id="categoryCheckboxes" class="category-grid">
+                </div>
+            <button id="startGameBtn" style="display: none;">Iniciar Juego</button>
+            <div id="waitingForHostMessage" style="display: none;"> <p>¡Sala lista! Esperando que el anfitrión elija categorías e inicie el juego...</p>
+            </div>
+        </section>
+        <section id="characterSelection" class="game-section" style="display: none;">
+    <h2>Elige tu Personaje Secreto</h2>
+    <p>Selecciona el personaje que tu oponente tendrá que adivinar.</p>
+    <div id="secretCharacterSelectionGrid" class="character-grid">
+        </div>
+    <button id="confirmSecretCharacterBtn" style="display: none;">Confirmar Personaje</button>
+    <p id="secretSelectionMessage"></p>
+</section>
 
-            <div class="game-actions">
-                <h3>Haz una Pregunta:</h3>
-                <div id="attributeQuestions">
-                    </div>
-                <hr> <h4>Pregunta Libre:</h4>
-                <textarea id="questionInput" placeholder="Escribe tu pregunta personalizada aquí..."></textarea>
-                <button id="askQuestionBtn">Enviar Pregunta</button>
-                <button id="guessCharacterBtn">Adivinar Personaje</button>
-                <hr>
-                <button id="resetGameBtn">Reiniciar Juego</button> </div>
-        </aside>
+        <section id="gameBoard" class="game-section" style="display: none;">
+            <h2>Tu Personaje Secreto</h2>
+            <div id="secretCharacterDisplay" class="character-card secret-character">
+                </div>
+
+            <h2>Tablero de Juego</h2>
+            <div id="gameBoardContent" class="character-grid">
+                </div>
+
+            <div class="game-controls">
+                <p id="turnIndicator">Esperando turno...</p> <p id="gameStatusMessage"></p> <div class="questions-section">
+                    <h3>Haz una Pregunta:</h3>
+                    <div id="attributeQuestions">
+                        </div>
+                </div>
+
+                <div class="guess-section">
+                    <h3>¿Quién es?</h3>
+                    <input type="text" id="guessedCharacterInput" placeholder="ID del personaje a adivinar" class="guess-input">
+                    <button id="guessCharacterBtn">¡Adivinar!</button>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/game.js"></script>
-    <script src="js/questions.js"></script> </body>
+    <script src="js/questions.js"></script>
+</body>
 </html>
