@@ -6,27 +6,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const lossesSpan = document.getElementById('losses');
 
     // --- Verificación de Autenticación al Cargar la Página ---
-    const token = localStorage.getItem('token');
+
     const userEmail = localStorage.getItem('userEmail'); // O userName/alias
     const userId = localStorage.getItem('userId');
 
-    if (!token || !userEmail || !userId) {
-        // Si no está autenticado, redirigir a la página de login
-        alert('No estás autenticado. Por favor, inicia sesión.');
-        window.location.href = '/';
-        return;
-    }
+
 
     // --- Lógica del Botón de Cerrar Sesión ---
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userId');
-            alert('Sesión cerrada. Redirigiendo...');
-            window.location.href = '/';
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/logout', { method: 'GET' });
+                if (res.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userId');
+
+                    window.location.replace('/');
+                } else {
+                    alert('Error al cerrar sesión. Intenta de nuevo.');
+                }
+            } catch (error) {
+                alert('No se pudo conectar con el servidor para cerrar sesión.');
+            }
         });
     }
+
 
     // --- Mostrar Información del Perfil del Usuario (Marcadores de posición) ---
     // Más tarde, obtendrás el avatar y las estadísticas reales de tu backend

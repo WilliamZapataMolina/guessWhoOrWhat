@@ -24,6 +24,7 @@ let currentTurnPlayerId = null; // ID del socket del jugador actual en turno
 const loggedInUserEmailSpan = document.getElementById('loggedInUserEmail');
 const logoutBtn = document.getElementById('logoutBtn');
 
+
 // Secciones del juego
 const lobbySection = document.getElementById('lobby-section');
 const gameSetupSection = document.getElementById('gameSetup');
@@ -67,13 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticación del usuario
     const userEmail = localStorage.getItem('userEmail');
     if (!userEmail) {
-        window.location.href = '/'; // Redirige al login si no está autenticado
+        window.location.replace('/'); // Redirige al login si no está autenticado
         return;
     }
-    loggedInUserEmailSpan.textContent = userEmail;
+    // loggedInUserEmailSpan.textContent = userEmail;
 
     // Conectar a Socket.IO
-    socket = io(SOCKET_IO_URL);
+    socket = io(SOCKET_IO_URL, {
+        query: {
+            userEmail: userEmail
+        }
+    });
 
     // --- 6. Manejo de Eventos de Socket.IO ---
 
@@ -181,15 +186,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Respuesta a la pregunta de ${data.playerId}: "${data.question}" - Respuesta: ${data.answer ? 'Sí' : 'No'}`);
         gameStatusMessage.textContent = `Pregunta: "${data.question}" - Respuesta: ${data.answer ? 'Sí' : 'No'}`;
 
+        console.log('Datos de la pregunta:', data); // Ver qué attrKey y attrValue llegan
+        console.log('Personaje secreto del oponente:', secretCharacter); // Para entender la respuesta
         // Lógica para voltear cartas en TODOS los clientes
         boardCharacters.forEach(char => {
             // Asegúrate de que char.attributes y data.attrKey/attrValue existan
             const charAttributeValue = char.attributes ? char.attributes[data.attrKey] : undefined;
             const charHasAttribute = (charAttributeValue === data.attrValue);
 
+            console.log(`Evaluando personaje ${char.name}: Atributo ${data.attrKey} valor ${charAttributeValue}. ¿Coincide con pregunta ${data.attrValue}? ${charHasAttribute}`);
+
             // Si la respuesta del secreto NO COINCIDE con la característica del personaje en el tablero, voltéala
             if (data.answer !== charHasAttribute) {
                 toggleCard(char._id);
+            } else {
+                console.log(`NO volteando carta: ${char.name} porque la respuesta es ${data.answer ? 'Sí' : 'No'} y el personaje ${charHasAttribute ? 'Sí tiene' : 'No tiene'} el atributo.`);
             }
         });
     });
@@ -230,38 +241,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 7. Event Listeners para la UI ---
 
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userEmail');
-        socket.disconnect(); // Desconectar el socket al hacer logout
-        window.location.href = '/';
+
+    logoutBtn.addEventListener('click', async () => {
+
+        try {
+            // Llama a la ruta /logout en el servidor para borrar la cookie JWT
+            const res = await fetch('/logout', { method: 'GET' });
+
+            if (res.ok) { // Verifica si el servidor respondió exitosamente
+                console.log('Logout exitoso en el servidor (cookie JWT borrada).');
+                localStorage.removeItem('userEmail'); // Borra el estado de autenticación del cliente
+                // Si también usas 'userToken' en localStorage, bórralo aquí también:
+                // localStorage.removeItem('userToken'); 
+
+                if (typeof socket !== 'undefined' && socket.connected) {
+                    socket.disconnect(); // Desconecta el socket
+                    console.log('Socket desconectado.');
+                }
+                window.location.replace('/'); // Redirige el navegador a la página de inicio
+            } else {
+                console.error('Error del servidor al intentar cerrar sesión:', res.status, res.statusText);
+                alert('Hubo un problema al cerrar sesión. Por favor, inténtalo de nuevo.');
+            }
+        } catch (err) {
+            console.error('Error de red al intentar cerrar sesión:', err);
+            alert('No se pudo conectar con el servidor para cerrar sesión.');
+        }
     });
 
+
     createRoomBtn.addEventListener('click', () => {
-        const roomId = roomIdInput.value.trim();
-        if (roomId) {
-            currentRoomId = roomId;
-            socket.emit('joinRoom', currentRoomId, loggedInUserEmailSpan.textContent); // Usar el email del span
-            isHost = true;
-            roomMessages.textContent = `Creando/Uniéndote a la sala: ${currentRoomId}...`;
-            hideLobbyControls();
+        const roomName = prompt('Ingresa un nombre para la nueva sala:'); // Pedimos el nombre de la sala aquí
+        if (roomName) {
+            // Emitir un evento 'createRoom' al servidor, pasando el nombre de la sala
+            socket.emit('createRoom', { roomName: roomName }); // El servidor determinará el hostId por el socket.id
+            roomMessages.textContent = `Intentando crear sala: ${roomName}...`;
+            hideLobbyControls(); // Ocultar controles mientras se procesa
         } else {
-            alert('Por favor, ingresa un ID de sala para crear.');
+            // El usuario canceló el prompt o no ingresó nada
+            alert('El nombre de la sala no puede estar vacío.');
         }
     });
 
     joinRoomBtn.addEventListener('click', () => {
-        const roomId = roomIdInput.value.trim();
-        if (roomId) {
-            currentRoomId = roomId;
-            socket.emit('joinRoom', currentRoomId, loggedInUserEmailSpan.textContent); // Usar el email del span
+        const roomIdToJoin = roomIdInput.value.trim(); // Usar un nombre de variable más claro
+        if (roomIdToJoin) {
+            currentRoomId = roomIdToJoin;
+            // Emitir un evento 'joinRoom' al servidor, pasando solo el ID de la sala
+            socket.emit('joinRoom', { roomName: roomIdToJoin }); // El servidor puede obtener el email del socket.handshake.query
             isHost = false; // Este cliente no es el host
-            roomMessages.textContent = `Uniéndote a la sala: ${currentRoomId}...`;
+            roomMessages.textContent = `Uniéndote a la sala: ${roomIdToJoin}...`;
             hideLobbyControls();
         } else {
             alert('Por favor, ingresa un ID de sala para unirte.');
         }
     });
+
 
     startGameButton.addEventListener('click', () => {
         selectedCategoryIds = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
@@ -508,6 +543,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.querySelector(`.character-card[data-id="${characterId}"]`);
         if (card) {
             card.classList.toggle('flipped');
+            console.log(`Tarjeta ${characterId} volteada (o desvolteada).`); // Añade este log
+        } else {
+            console.error(`Error: No se encontró la tarjeta con data-id="${characterId}" para voltear.`); // Añade este error
         }
     }
 

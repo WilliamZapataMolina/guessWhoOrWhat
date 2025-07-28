@@ -6,18 +6,27 @@ const os = require('node:os');// Módulo OS de Node.js para obtener información
 const mongoose = require('mongoose');// Importa Mongoose para manejar la base de datos MongoDB
 const dotenv = require('dotenv'); //Para cargar variables de entorno desde .env
 const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes
+const cookieParser = require('cookie-parser');
+const authController = require('./controllers/authController');
 
 
+dotenv.config();// Carga las variables de entorno desde el archivo .env
 //Importar las rutas modularizadas
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const characterRoutes = require('./routes/characterRoutes');
 
+// Importa los middlewares de autenticación
+const { requireAuth, checkUser } = require('./middleware/authMiddleware');
+
 // Importa los modelos que necesitarás para la lógica del juego
 const Character = require('./models/Character');
 const Category = require('./models/Category');
+const app = express();// Crea una instancia de la aplicación Express
 
-dotenv.config();// Carga las variables de entorno desde el archivo .env
+//Configuración EJS como motor de plantillas
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
 
 // Configuración de Cloudinary
 cloudinary.config({
@@ -26,7 +35,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const app = express();// Crea una instancia de la aplicación Express
+
 const server = http.createServer(app);// Crea un servidor HTTP usando la aplicación Express
 const io = new Server(server, {
     cors: {
@@ -42,8 +51,19 @@ const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/guessWho
 //Middleware para servir archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, '../public')));
 
+
+// Middleware para parsear datos de formularios HTML (application/x-www-form-urlencoded)
+app.use(express.urlencoded({ extended: true }));
+
 //Middleware para parsear JSON en las solicitudes (necesario para registro/login)
 app.use(express.json());
+
+
+app.use(cookieParser());
+
+// Aplicar checkUser en TODAS las rutas
+app.use(checkUser);
+
 
 // --- Conexión a MongoDB ---
 mongoose.connect(MONGO_URI)
@@ -56,24 +76,31 @@ mongoose.connect(MONGO_URI)
 
 //Usar rutas modularizadas
 // Estas rutas manejan las solicitudes a la API
-app.use('/api', authRoutes);
+app.use(authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/characters', characterRoutes);
 
+
 // Ruta principal para servir el archivo HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+app.get('/', checkUser, (req, res) => {
+    if (res.locals.user) {
+        return res.redirect('/profile'); // o '/game' u otra ruta
+    }
+    res.render('index', { user: res.locals.user });
 });
 
-// Ruta para el juego
+
+// Ruta para el juego(ruta protegida)
 app.get('/game', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'game.html'));
+    if (!res.locals.user) return res.redirect('/');
+    res.render('game', { user: res.locals.user });
+});
+//Ruta para el perfil de usuario
+app.get('/profile', requireAuth, checkUser, (req, res) => { // Asegúrate de que checkUser esté aquí
+    res.render('profile', { user: res.locals.user, footer: true }); // Pasa res.locals.user
 });
 
-//Ruta para el perfil de usuario
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'profile.html'));
-});
+app.get('/logout', authController.logout_get);
 //--- Lógica de Socket.IO (comunicación en tiempo real y lógica de juego)---
 
 // Objeto para mantener el estado de las salas activas

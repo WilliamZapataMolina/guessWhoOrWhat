@@ -1,5 +1,3 @@
-/* public/css/style.css */
-
 /* --- Estilos Globales y Base --- */
 body {
     font-family: Arial, sans-serif;
@@ -74,12 +72,7 @@ header {
     align-items: center; /* Centra verticalmente los ítems */
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     flex-shrink: 0; /* Evita que el header se encoja */
-    /* Posicionamiento fijo si el header debe estar siempre visible */
-    /* position: fixed; */
-    /* top: 0; */
-    /* left: 0; */
-    /* width: 100%; */
-    /* z-index: 1000; */
+    
 }
 
 /* Nota: Tu navbar existente, si está dentro del header como en game.html,
@@ -89,10 +82,10 @@ header {
 */
 .navbar { /* Estilos de la navbar dentro del header principal de game.html */
     /* Si el navbar es una barra de navegación *adicional* debajo del header principal,
-       necesitas posicionarlo y manejar su layout.
-       Si solo es un contenedor de enlaces/botones dentro del header, los estilos a continuación están bien. */
+        necesitas posicionarlo y manejar su layout.
+        Si solo es un contenedor de enlaces/botones dentro del header, los estilos a continuación están bien. */
     background-color: transparent; /* O el color que desees si es parte del header principal */
-    color: white;
+    color: rgb(156, 84, 84);
     padding: 0; /* Ya lo maneja el padding del header */
     display: flex;
     justify-content: flex-end; /* Alinea los links a la derecha del header */
@@ -383,9 +376,9 @@ textarea { /* Añadido para textarea, como questionInput */
     background-color: #e8f5e9;
     border-radius: 10px;
     box-shadow: inset 0 1px 5px rgba(0,0,0,0.07);
-    width: 100%; /* Asegura que la cuadrícula ocupe el espacio disponible */
-    max-width: 800px; /* Limita el ancho máximo del grid para que no se estire demasiado */
-    margin: 20px auto; /* Centra el grid */
+    width: 100%; 
+    max-width: 800px; 
+    margin: 20px auto; 
 }
 
 .character-card {
@@ -433,25 +426,33 @@ textarea { /* Añadido para textarea, como questionInput */
     word-break: break-word;
 }
 
-/* Estilo para las cartas "volteadas" (descartadas) */
+/* Estilo para las cartas "volteadas" (descartadas) - ¡VERSIÓN EXTREMA SOLO CON COLORES! */
 .character-card.flipped {
-    opacity: 0.2;
-    pointer-events: none;
-    transform: scale(0.9) rotateY(180deg); /* Combina scale y rotateY */
-    background-color: #f7f7f7;
-    box-shadow: none;
-    border: 1px dashed #ccc;
+    /* Fondo muy oscuro y opaco para que destaque */
+    background-color: rgba(0, 0, 0, 0.95) !important; /* Negro casi opaco */
+    color: white !important; /* Texto blanco para contraste */
+
+    /* Elimina cualquier imagen de fondo si existiera */
+    background-image: none !important; 
+
+    opacity: 1 !important; /* Asegura opacidad completa para ver el fondo */
+    filter: none !important; /* Deshabilita cualquier filtro que oculte el color */
+    pointer-events: none !important; /* Impide clics */
+
+    /* Transformación obvia */
+    transform: scale(0.7) rotate(15deg) !important; /* La encoge y la rota drásticamente */
+
+    /* Borde grueso y llamativo */
+    border: 10px solid #ff0000 !important; /* ROJO FUERTE */
+    box-shadow: 0 0 30px 5px rgba(255, 0, 0, 0.8) !important; /* Sombra roja brillante */
 }
 
-/* Para ocultar el contenido trasero de la carta al voltear (si lo tienes) */
-.character-card.flipped .front-content,
-.character-card .back-content {
-    backface-visibility: hidden;
+/* Oculta el contenido original (imagen del personaje y nombre) cuando la carta está volteada */
+.character-card.flipped img,
+.character-card.flipped p {
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
-.character-card.flipped .back-content {
-    transform: rotateY(180deg);
-}
-
 /* --- Estilos de Game Controls y Personaje Secreto --- */
 .game-controls {
     flex: 0 0 280px; /* Ancho fijo para controles, un poco más ancho */
@@ -711,7 +712,7 @@ textarea { /* Añadido para textarea, como questionInput */
     main {
         /* Ajusta este padding si tu header es fijo o no y qué tan grande es en mobile */
         /* padding-top: 120px; */
-        padding-bottom: 60px;
+        /* padding-bottom: 60px; */ /* Comentado porque el padding general de main es 20px, y un footer fixed podría causar conflicto. Mejor dejarlo a la gestión de main por flex-grow. */
     }
     .game-container, .profile-container {
         padding: 10px;
