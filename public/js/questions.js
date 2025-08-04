@@ -1,5 +1,3 @@
-// public/js/questions.js
-
 /**
  * Extrae todos los atributos únicos (claves y posibles valores) de un conjunto de personajes.
  * Ahora busca los atributos dentro del sub-objeto 'attributes'.
@@ -9,8 +7,6 @@
  */
 function extractUniqueAttributes(characters) {
     const uniqueAttributes = {};
-    // Excluye los campos que no son atributos de juego, incluso si están en el sub-objeto 'attributes'
-    // Los que tienen "N/A" o son muy específicos de descripción pueden ser excluidos si no quieres preguntas sobre ellos.
     const excludedAttributeKeys = [
         'birthName', 'nickName', 'description', 'knownFor', 'historicalImpact',
         'genre', 'notableFor', 'awards', 'sport', 'team', 'position', 'medals',
@@ -18,24 +14,20 @@ function extractUniqueAttributes(characters) {
         'artisticMovement', 'musicalPeriod', 'location', 'material', 'timePeriod'
     ];
 
-
     characters.forEach(char => {
-        // Asegúrate de que el personaje tenga un objeto 'attributes'
         if (char.attributes) {
             for (const key in char.attributes) {
                 if (char.attributes.hasOwnProperty(key) && !excludedAttributeKeys.includes(key)) {
                     const value = char.attributes[key];
 
-                    // Ignorar atributos con valor null, undefined o 'N/A' si no queremos preguntar sobre ellos
+                    // Ignorar atributos con valor null, undefined o 'N/A'
                     if (value === null || typeof value === 'undefined' || value === 'N/A') {
                         continue;
                     }
 
-                    // Si el atributo ya existe en uniqueAttributes, añade el valor al Set
                     if (uniqueAttributes[key]) {
                         uniqueAttributes[key].add(value);
                     } else {
-                        // Si es un nuevo atributo, crea un nuevo Set con el valor
                         uniqueAttributes[key] = new Set([value]);
                     }
                 }
@@ -47,74 +39,17 @@ function extractUniqueAttributes(characters) {
 }
 
 /**
- * Genera y muestra botones de pregunta basados en los atributos únicos de los personajes.
- *
- * @param {Array<Object>} boardCharacters - El array de personajes actualmente en el tablero.
- * @param {HTMLElement} containerElement - El elemento del DOM donde se insertarán los botones de pregunta.
- * @param {Object} secretCharacter - El personaje secreto, necesario para la lógica de la pregunta.
- */
-function generateAttributeQuestions(boardCharacters, containerElement, secretCharacter) {
-    containerElement.innerHTML = ''; // Limpiar el contenedor
-
-    const uniqueAttributes = extractUniqueAttributes(boardCharacters);
-
-
-    // Iterar sobre cada atributo único y generar botones
-    for (const attrKey in uniqueAttributes) {
-        if (uniqueAttributes.hasOwnProperty(attrKey)) {
-            const possibleValues = Array.from(uniqueAttributes[attrKey]);
-
-            // Ordenar valores booleanos para consistencia (true antes de false)
-            if (possibleValues.some(val => typeof val === 'boolean')) {
-                possibleValues.sort((a, b) => {
-                    if (typeof a === 'boolean' && typeof b === 'boolean') {
-                        return (a === b) ? 0 : (a ? -1 : 1);
-                    }
-                    return 0; // Mantener orden si no son ambos booleanos
-                });
-            } else {
-                possibleValues.sort(); // Ordenar alfabéticamente/numéricamente
-            }
-
-            possibleValues.forEach(attrValue => {
-                const questionButton = document.createElement('button');
-                let buttonText = '';
-
-                const formattedKey = formatAttributeKey(attrKey); // Formato para la UI
-
-                if (typeof attrValue === 'boolean') {
-                    if (attrValue === true) {
-                        buttonText = `¿Tiene ${formattedKey}?`;
-                    } else { // attrValue es false
-                        buttonText = `¿NO tiene ${formattedKey}?`;
-                    }
-                } else {
-                    // Para otros tipos de atributos (string, enum)
-                    buttonText = `¿Tiene ${formattedKey} ${attrValue}?`;
-                }
-
-                questionButton.textContent = buttonText;
-                questionButton.classList.add('question-button');
-
-                questionButton.addEventListener('click', () => {
-                    // Pasar todos los parámetros necesarios
-                    handleQuestionClick(attrKey, attrValue, boardCharacters, secretCharacter);
-                });
-
-                containerElement.appendChild(questionButton);
-            });
-        }
-    }
-}
-
-/**
- * Formatea una clave de atributo (camelCase de la DB) a un texto más legible en español.
- * Las claves aquí DEBEN COINCIDIR EXACTAMENTE con las claves en tu schema de Mongoose bajo 'attributes'.
+ * Formatea una clave de atributo (camelCase de la DB) y su valor a una pregunta legible en español.
  *
  * @param {string} key - La clave del atributo del objeto Character.attributes (ej: "hasGlasses", "hairColor").
- * @returns {string} La clave formateada (ej: "gafas", "color de pelo").
+ * @param {*} value - El valor del atributo (ej: true, "castaño", "masculino").
+ * @returns {string|null} La pregunta formateada o null si no se debe generar una.
  */
-function formatAttributeKey(key) {
+function formatAttributeQuestion(key, value) {
+    if (value === null) {
+        return null;
+    }
+
     const translations = {
         'gender': 'género',
         'occupationType': 'tipo de ocupación',
@@ -130,10 +65,10 @@ function formatAttributeKey(key) {
         'facialHair': 'vello facial',
         'isPresident': 'es presidente',
         'isKingOrQueen': 'es rey o reina',
-        'isAthete': 'es atleta',
+        'isAthlete': 'es atleta',
         'isMusician': 'es músico/a',
         'hasScars': 'cicatrices',
-        'isBald': 'calvicie',
+        'isBald': 'calvo/a',
         'era': 'era',
         'genre': 'género',
         'awards': 'premios',
@@ -152,7 +87,6 @@ function formatAttributeKey(key) {
         'armorType': 'tipo de armadura',
         'artisticMovement': 'movimiento artístico',
         'musicalPeriod': 'periodo musical',
-        // --- ATRIBUTOS ESPECÍFICOS PARA GEOGRAFÍA ---
         'type': 'tipo',
         'isManMade': 'es hecho por el hombre',
         'isHistorical': 'es histórico',
@@ -162,11 +96,100 @@ function formatAttributeKey(key) {
         'waterFeatureNearby': 'característica de agua cercana',
         'vegetationPresent': 'vegetación presente',
         'tourismAttraction': 'atracción turística',
-        // 'historicalImpact': 'impacto histórico' // Si quieres preguntar sobre esto
-        // 'timePeriod': 'período de tiempo' // Si quieres preguntar sobre esto
     };
-    // Devuelve la traducción si existe, de lo contrario, intenta "humanizar" camelCase
-    return translations[key] || key.replace(/([A-Z])/g, ' $1').toLowerCase();
+
+    const booleanTemplates = {
+        'isAlive': { true: '¿Está vivo/a?', false: '¿Está muerto/a?' },
+        'isFictional': { true: '¿Es un personaje ficticio?', false: '¿Es una persona real?' },
+        'hasGlasses': { true: '¿Usa gafas?', false: '¿No usa gafas?' },
+        'hasHat': { true: '¿Lleva sombrero?', false: '¿No lleva sombrero?' },
+        'isBald': { true: '¿Es calvo/a?', false: '¿No es calvo/a?' },
+        'hasScars': { true: '¿Tiene cicatrices?', false: '¿No tiene cicatrices?' },
+    };
+
+    if (typeof value === 'boolean') {
+        if (booleanTemplates[key]) {
+            return booleanTemplates[key][value];
+        }
+        if (translations[key]) {
+            if (key.startsWith('is')) {
+                return value ? `¿${translations[key]}?` : `¿No ${translations[key]}?`;
+            }
+            return value ? `¿Tiene ${translations[key]}?` : `¿No tiene ${translations[key]}?`;
+        }
+    }
+
+    if (translations[key]) {
+        switch (key) {
+            case 'gender':
+                return `¿Es de género ${value}?`;
+            case 'hairColor':
+                return `¿Tiene el pelo de color ${value}?`;
+            case 'eyeColor':
+                return `¿Tiene los ojos de color ${value}?`;
+            case 'skinColor':
+                return `¿Tiene la piel de color ${value}?`;
+            case 'nationality':
+                return `¿Es de nacionalidad ${value}?`;
+            case 'occupationType':
+                return `¿Es un/a ${value}?`;
+            case 'era':
+                return `¿Es de la ${value}?`;
+            case 'enemy':
+                return `¿Tiene a ${value} como enemigo/a?`;
+            default:
+                return `¿Tiene ${translations[key]} ${value}?`;
+        }
+    }
+
+    const formattedKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+    return `¿Tiene ${formattedKey} ${value}?`;
+}
+
+/**
+ * Genera y muestra botones de pregunta basados en los atributos únicos de los personajes.
+ *
+ * @param {Array<Object>} boardCharacters - El array de personajes actualmente en el tablero.
+ * @param {HTMLElement} containerElement - El elemento del DOM donde se insertarán los botones de pregunta.
+ * @param {Object} secretCharacter - El personaje secreto, necesario para la lógica de la pregunta.
+ */
+function generateAttributeQuestions(boardCharacters, containerElement, secretCharacter) {
+    containerElement.innerHTML = '';
+    const uniqueAttributes = extractUniqueAttributes(boardCharacters);
+
+    for (const attrKey in uniqueAttributes) {
+        if (uniqueAttributes.hasOwnProperty(attrKey)) {
+            const possibleValues = Array.from(uniqueAttributes[attrKey]);
+
+            if (possibleValues.some(val => typeof val === 'boolean')) {
+                possibleValues.sort((a, b) => {
+                    if (typeof a === 'boolean' && typeof b === 'boolean') {
+                        return (a === b) ? 0 : (a ? -1 : 1);
+                    }
+                    return 0;
+                });
+            } else {
+                possibleValues.sort();
+            }
+
+            possibleValues.forEach(attrValue => {
+                const buttonText = formatAttributeQuestion(attrKey, attrValue);
+
+                // Si formatAttributeQuestion devuelve null (porque el valor era null),
+                // no creamos el botón.
+                if (buttonText !== null) {
+                    const questionButton = document.createElement('button');
+                    questionButton.textContent = buttonText;
+                    questionButton.classList.add('question-button');
+
+                    questionButton.addEventListener('click', () => {
+                        handleQuestionClick(attrKey, attrValue, boardCharacters, secretCharacter);
+                    });
+                    containerElement.appendChild(questionButton);
+                }
+            });
+        }
+    }
 }
 
 /**
@@ -178,24 +201,17 @@ function formatAttributeKey(key) {
  * @param {Object} currentSecretCharacter - El personaje secreto que se debe adivinar.
  */
 function handleQuestionClick(attrKey, attrValue, currentBoardCharacters, currentSecretCharacter) {
-    console.log(`Pregunta: ¿Tiene ${formatAttributeKey(attrKey)} ${attrValue}?`);
+    const questionText = formatAttributeQuestion(attrKey, attrValue);
+    console.log(`Pregunta: ${questionText}`);
 
-    let charactersToFlip = []; // IDs de personajes que deben ser descartados
-
-    // Acceder a los atributos del secreto desde el objeto 'attributes'
+    let charactersToFlip = [];
     const secretAttributeValue = currentSecretCharacter.attributes ? currentSecretCharacter.attributes[attrKey] : undefined;
-
-    // Comprobar si el personaje secreto tiene el atributo con el valor preguntado
     const secretHasAttribute = secretAttributeValue === attrValue;
-    console.log(`El personaje secreto ${secretHasAttribute ? 'SÍ' : 'NO'} tiene ${formatAttributeKey(attrKey)} ${attrValue}.`);
+    console.log(`El personaje secreto ${secretHasAttribute ? 'SÍ' : 'NO'} cumple con la característica.`);
 
-    // Iterar sobre todos los personajes del tablero para decidir cuáles voltear
     currentBoardCharacters.forEach(char => {
-        // Acceder a los atributos del personaje del tablero desde el objeto 'attributes'
         const charAttributeValue = char.attributes ? char.attributes[attrKey] : undefined;
         const charHasAttribute = charAttributeValue === attrValue;
-
-        // Lógica de descarte: Voltear si la característica del personaje NO COINCIDE con la del secreto
         if (secretHasAttribute !== charHasAttribute) {
             charactersToFlip.push(char._id);
         }
@@ -203,7 +219,6 @@ function handleQuestionClick(attrKey, attrValue, currentBoardCharacters, current
 
     console.log('IDs de personajes a voltear:', charactersToFlip);
 
-    // Voltear las cartas usando la función toggleCard de game.js (que debería ser global)
     charactersToFlip.forEach(id => {
         if (typeof toggleCard === 'function') {
             toggleCard(id);
@@ -212,7 +227,6 @@ function handleQuestionClick(attrKey, attrValue, currentBoardCharacters, current
         }
     });
 
-    // Contar cartas restantes, detectar fin de juego, etc.
     const remainingCards = document.querySelectorAll('.character-card:not(.flipped)').length;
     console.log(`Cartas restantes: ${remainingCards}`);
 

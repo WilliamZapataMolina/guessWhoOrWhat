@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('allSecretsChosen', (gameData) => {
         console.log('¡Ambos personajes secretos elegidos! Juego iniciado:', gameData);
 
-        // CORRECCIÓN: Asignar los personajes a la variable global ANTES de renderizar
+        // Asignar los personajes a la variable global ANTES de renderizar
         boardCharacters = gameData.boardCharacters;
         secretCharacter = gameData.secretCharacter;
         currentTurnPlayerId = gameData.currentPlayerTurn;
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBoard(boardCharacters);
         renderSecretCharacter(gameData.mySecretCharacter);
 
-        // CORRECCIÓN: Ahora, 'boardCharacters' ya tiene los datos.
+        // Ahora, 'boardCharacters' ya tiene los datos.
         generateAttributeQuestions(boardCharacters);
 
         updateTurnIndicator(currentTurnPlayerId);
@@ -566,55 +566,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para generar dinámicamente los botones de preguntas de atributos
     function generateAttributeQuestions(characters) {
         attributeQuestionsDiv.innerHTML = '';
-        const attributes = {};
+        const uniqueAttributes = extractUniqueAttributes(characters);
 
-        // Recopilar todos los atributos y sus valores únicos de los personajes
-        characters.forEach(char => {
-            for (const key in char.attributes) {
-                if (char.attributes.hasOwnProperty(key)) {
-                    const value = char.attributes[key];
-                    if (!attributes[key]) {
-                        attributes[key] = new Set();
-                    }
-                    attributes[key].add(value);
-                }
-            }
-        });
+        for (const attrKey in uniqueAttributes) {
+            if (uniqueAttributes.hasOwnProperty(attrKey)) {
+                const possibleValues = Array.from(uniqueAttributes[attrKey]);
 
-        for (const attrKey in attributes) {
-            if (attributes.hasOwnProperty(attrKey)) {
-                const values = Array.from(attributes[attrKey]);
-                values.forEach(attrValue => {
-                    const questionText = `${attrKey} ${attrValue}?`; // Ejemplo: "¿Tiene gafas Sí?"
-                    const button = document.createElement('button');
-                    button.textContent = questionText;
-                    button.classList.add('attribute-question-btn');
-                    button.setAttribute('data-attr-key', attrKey);
-                    button.setAttribute('data-attr-value', attrValue);
-                    button.addEventListener('click', (event) => {
-                        if (myTurn && currentRoomId) { // Asegúrate de que sea tu turno
-                            // Deshabilitar botón para evitar spam
-                            event.target.disabled = true;
-                            // Enviar pregunta al servidor
-
-                            socket.emit('askQuestion', currentRoomId, {
-                                question: questionText,
-                                attrKey: attrKey,
-                                attrValue: attrValue
-                            });
-                        } else {
-                            alert('No es tu turno para preguntar.');
+                // Si el atributo es booleano, ordena los valores para que el 'true' aparezca primero
+                if (possibleValues.some(val => typeof val === 'boolean')) {
+                    possibleValues.sort((a, b) => {
+                        if (typeof a === 'boolean' && typeof b === 'boolean') {
+                            return a === b ? 0 : (a ? -1 : 1);
                         }
+                        return 0;
                     });
-                    attributeQuestionsDiv.appendChild(button);
+                } else {
+                    possibleValues.sort();
+                }
+
+                possibleValues.forEach(attrValue => {
+                    const questionText = formatAttributeQuestion(attrKey, attrValue);
+
+                    // Solo crea el botón si la pregunta es válida (no es null)
+                    if (questionText) {
+                        const button = document.createElement('button');
+                        button.textContent = questionText;
+                        button.classList.add('attribute-question-btn');
+                        button.setAttribute('data-attr-key', attrKey);
+                        button.setAttribute('data-attr-value', attrValue);
+
+                        button.addEventListener('click', (event) => {
+                            if (myTurn && currentRoomId) {
+                                // Deshabilita el botón para evitar spam
+                                event.target.disabled = true;
+
+                                // Envía la pregunta formateada y los datos del atributo al servidor
+                                socket.emit('askQuestion', currentRoomId, {
+                                    question: questionText,
+                                    attrKey: attrKey,
+                                    attrValue: attrValue
+                                });
+                            } else {
+                                alert('No es tu turno para preguntar.');
+                            }
+                        });
+                        attributeQuestionsDiv.appendChild(button);
+                    }
                 });
             }
         }
     }
-
     // Al iniciar, mostrar el lobby
     showLobby();
 });

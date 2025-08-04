@@ -424,7 +424,8 @@ io.on('connection', (socket) => {
     socket.on('askQuestion', (roomId, questionDetails) => {
         const room = rooms.get(roomId);
         if (room && room.gameStarted && socket.id === room.currentPlayerTurn) {
-            const { attrKey, attrValue } = questionDetails;
+            const { attrKey, attrValue, question } = questionDetails;
+            console.log('Pregunta recibida del cliente:', question);
 
             const opponentPlayer = room.players.find(p => p.userId !== userId);
             if (!opponentPlayer) {
@@ -451,10 +452,10 @@ io.on('connection', (socket) => {
                 })
                 .map(char => char._id.toString());
 
-            // CAMBIO 1: Emitir el evento 'questionAnswered' en lugar de 'questionResult'
+            // Emitir el evento 'questionAnswered'
             io.to(roomId).emit('questionAnswered', {
                 playerId: socket.id,
-                question: questionDetails.question,
+                question: question,
                 answer: answer,
                 charactersToFlip: charactersToFlip // CAMBIO 2: Renombrar la clave para mayor claridad
             });
