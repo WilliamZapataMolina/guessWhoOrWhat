@@ -4,15 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gamesPlayedSpan = document.getElementById('gamesPlayed');
     const winsSpan = document.getElementById('wins');
     const lossesSpan = document.getElementById('losses');
+    const aliasInput = document.getElementById('aliasInput');
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+    const saveAliasBtn = document.getElementById('saveAliasBtn');
 
-    // --- Verificación de Autenticación al Cargar la Página ---
-
-    const userEmail = localStorage.getItem('userEmail'); // O userName/alias
+    const userEmail = localStorage.getItem('userEmail');
     const userId = localStorage.getItem('userId');
 
-
-
-    // --- Lógica del Botón de Cerrar Sesión ---
+    // --- Cierre de sesión ---
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
@@ -21,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('token');
                     localStorage.removeItem('userEmail');
                     localStorage.removeItem('userId');
-
                     window.location.replace('/');
                 } else {
                     alert('Error al cerrar sesión. Intenta de nuevo.');
@@ -32,15 +30,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Lógica para selección de avatar desde galería ---
+    document.querySelectorAll('.avatar-option').forEach(img => {
+        img.addEventListener('click', () => {
+            const selectedUrl = img.dataset.url;
+            currentAvatarImg.src = selectedUrl;
+            currentAvatarImg.dataset.avatarUrl = selectedUrl;
+        });
+    });
 
-    // --- Mostrar Información del Perfil del Usuario (Marcadores de posición) ---
-    // Más tarde, obtendrás el avatar y las estadísticas reales de tu backend
-    currentAvatarImg.src = "images/default-avatar.png"; // Cargar el avatar real de los datos del usuario más tarde
+    // --- Guardar avatar seleccionado ---
+    if (saveAvatarBtn) {
+        saveAvatarBtn.addEventListener('click', () => {
+            const avatarUrl = currentAvatarImg.dataset.avatarUrl;
+            if (!avatarUrl) return alert("Selecciona un avatar primero.");
+
+            fetch('/update-avatar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatarUrl })
+            })
+                .then(res => res.json())
+                .then(data => alert(data.message || "Avatar actualizado correctamente."))
+                .catch(err => alert("Error al guardar el avatar."));
+        });
+    }
+
+    // --- Guardar alias ---
+    if (saveAliasBtn) {
+        saveAliasBtn.addEventListener('click', () => {
+            const alias = aliasInput.value.trim();
+            if (!alias) return alert("Debes ingresar un alias.");
+
+            fetch('/update-alias', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ alias })
+            })
+                .then(res => res.json())
+                .then(data => alert(data.message || "Alias actualizado correctamente."))
+                .catch(err => alert("Error al guardar el alias."));
+        });
+    }
+
+    // --- Mostrar datos por defecto antes de que el backend los proporcione ---
+    currentAvatarImg.src = "images/default-avatar.png";
     gamesPlayedSpan.textContent = "N/A";
     winsSpan.textContent = "N/A";
     lossesSpan.textContent = "N/A";
 
     console.log('Lógica del perfil cargada para el usuario:', userEmail);
 
-    // --- Aquí irá la lógica para subir avatar, cambiar alias, obtener estadísticas ---
+    // 🔄 (Opcional) Aquí podrías hacer un fetch para cargar el avatar y alias reales si tu backend lo permite
 });

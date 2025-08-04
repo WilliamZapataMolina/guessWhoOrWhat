@@ -1,39 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Who Or What - Mi Perfil</title>
-    <link rel="stylesheet" href="css/style.css"> </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess Who Or What - Mi Perfil</title>
+  <link rel="stylesheet" href="thirdparty/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/profile.css">
+</head>
 <body>
-    <header class="navbar">
-        <nav>
-            <a href="/game" class="logo">Guess Who Or What</a>
-            <div class="nav-links">
-                <a href="/game" class="game-link">Volver al Juego</a>
-                <button id="logoutBtn">Cerrar Sesión</button>
-            </div>
-        </nav>
-    </header>
+  <%- include('parts/navbar', { user: user }) %>
 
-    <main class="profile-container">
-        <h1>Mi Perfil</h1>
-        <section class="avatar-section">
-            <h2>Mi Avatar</h2>
-            <img id="currentAvatar" src="images/default-avatar.png" alt="Avatar Actual">
-            <input type="file" id="avatarUpload" accept="image/*">
-            <button id="saveAvatarBtn">Guardar Avatar</button>
-            <input type="text" id="aliasInput" placeholder="Elige un alias">
-            <button id="saveAliasBtn">Guardar Alias</button>
-        </section>
+  <main class="profile-container container py-4">
+    <h1 class="mb-4">Mi Perfil</h1>
 
-        <section class="stats-section">
-            <h2>Mis Estadísticas</h2>
-            <p>Partidas Jugadas: <span id="gamesPlayed">0</span></p>
-            <p>Victorias: <span id="wins">0</span></p>
-            <p>Derrotas: <span id="losses">0</span></p>
-            </section>
-    </main>
+    <section class="avatar-section mb-5">
+      <h2 class="mb-3">Selecciona tu Avatar</h2>
+      
+      <div class="avatar-gallery d-flex flex-wrap gap-3 mb-3">
+        <% const avatars = [
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar1.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar2.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar3.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar4.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar5.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar6.png'
+        ]; %>
 
-    <script src="js/profile.js"></script> </body>
+        <% avatars.forEach(url => { %>
+          <img src="<%= url %>" class="avatar-option img-thumbnail" data-url="<%= url %>" style="width: 100px; cursor: pointer;">
+        <% }); %>
+      </div>
+
+      <h3 class="mb-2">Avatar actual</h3>
+      <img id="currentAvatar" src="images/default-avatar.png" alt="Avatar Actual" class="img-thumbnail mb-3" style="width: 150px;">
+      <div>
+        <button id="saveAvatarBtn" class="btn btn-primary me-2">Guardar Avatar</button>
+      </div>
+
+      <div class="mt-4">
+        <input type="text" id="aliasInput" class="form-control mb-2" placeholder="Elige un alias" value="<%= user.alias || '' %>">
+        <button id="saveAliasBtn" class="btn btn-secondary">Guardar Alias</button>
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <h2>Mis Estadísticas</h2>
+      <p>Partidas Jugadas: <span id="gamesPlayed"><%= user.stats?.gamesPlayed || 0 %></span></p>
+      <p>Victorias: <span id="wins"><%= user.stats?.wins || 0 %></span></p>
+      <p>Derrotas: <span id="losses"><%= user.stats?.losses || 0 %></span></p>
+    </section>
+  </main>
+
+  <%- include('parts/footer') %>
+  <script src="/js/profile.js"></script>
+</body>
 </html>

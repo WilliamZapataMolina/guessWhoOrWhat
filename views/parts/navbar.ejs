@@ -1,13 +1,15 @@
 <header class="navbar">
-    <nav>
-        <a href="/" class="logo">Guess Who Or What</a>
-        <div class="nav-links">
-            <% if (user) { %> <span class="welcome-message">¡Bienvenido, <%= user.email %>!</span>
-                <a href="/profile" class="profile-link">Mi Perfil</a> <button id="logoutBtn">Cerrar Sesión</button>
-            <% } else { %>
-                <a href="/" class="login-link">Iniciar Sesión</a>
-                <a href="/register" class="register-link">Registrarse</a>
-            <% } %>
-        </div>
-    </nav>
+  <nav>
+    <a href="/" class="logo">Guess Who Or What</a>
+    <div class="nav-links">
+      <% if (user) { %>
+        <span class="welcome-message">¡Bienvenido, <%= user.email %>!</span>
+        <a href="/profile" class="profile-link">Mi Perfil</a>
+        <button id="logoutBtn">Cerrar Sesión</button>
+      <% } else if (typeof showAuthLinks === 'undefined' || showAuthLinks) { %>
+        <a href="/" class="login-link">Iniciar Sesión</a>
+        <a href="/register" class="register-link">Registrarse</a>
+      <% } %>
+    </div>
+  </nav>
 </header>

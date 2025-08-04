@@ -62,7 +62,6 @@ const guessedCharacterInput = document.getElementById('guessedCharacterInput');
 const guessCharacterBtn = document.getElementById('guessCharacterBtn');
 const resetGameBtn = document.getElementById('resetGameBtn'); // Botón para reiniciar juego
 
-
 // --- 5. Lógica Principal al Cargar el DOM ---
 document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticación del usuario
@@ -71,7 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.replace('/'); // Redirige al login si no está autenticado
         return;
     }
-    // loggedInUserEmailSpan.textContent = userEmail;
+
+    // Mostrar el email del usuario logueado
+    if (loggedInUserEmailSpan) {
+        loggedInUserEmailSpan.textContent = userEmail;
+    }
 
     // Conectar a Socket.IO
     socket = io(SOCKET_IO_URL, {
@@ -88,11 +91,23 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.emit('userConnected', userEmail);
     });
 
-    socket.on('disconnect', () => {
-        console.log('Desconectado del servidor de Socket.IO');
-        alert('Te has desconectado del juego.');
-        showLobby(); // Volver al lobby
+    socket.on('disconnect', (reason) => {
+        console.log('Desconectado del servidor de Socket.IO. Razón:', reason);
+        // Puedes ser más específico con el mensaje si la razón es 'io server disconnect'
+        // (que sería el caso si el servidor te desconecta por 'authError')
+        if (reason !== 'io server disconnect') {
+            alert('Te has desconectado del juego inesperadamente. Volviendo al lobby.');
+            showLobby();
+        }
+        // Si la razón es 'io server disconnect', 'authError' ya manejó la redirección.
     });
+
+    socket.on('authError', (message) => {
+        console.error('Error de autenticación desde el servidor:', message);
+        alert(message); // Mostrar el mensaje de error al usuario
+        window.location.replace('/login'); // Redirige al login o a la página principal
+    });
+
 
     // Eventos del Lobby
     socket.on('playerJoined', (joinedUserEmail, playerCount, playersInRoom) => {
@@ -111,21 +126,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (socket.id === player1Id) {
             // Este jugador es el ANFITRIÓN
             isHost = true; // Asegúrate de que esta variable global se actualice correctamente aquí
-            // roomMessages.textContent = '¡Sala lista! Elige categorías e inicia el juego.'; // Mensaje para el host
 
             // ¡ACTIVA LA SECCIÓN DE CONFIGURACIÓN DEL JUEGO PARA EL HOST!
             showGameSetup(); // Esto oculta el lobby y muestra gameSetupSection
             loadCategories(); // Esto cargará y mostrará las checkboxes de categorías
 
-            // El botón startGameButton ya se hace visible dentro de showGameSetup()
-            // document.getElementById('categorySelectionArea').style.display = 'block'; // Esto ya no es estrictamente necesario si showGameSetup maneja el padre
-            document.getElementById('waitingForHostMessage').style.display = 'none'; // Oculta el mensaje de espera
+            const waitingMessage = document.getElementById('waitingForHostMessage');
+            if (waitingMessage) { // <--- AÑADIR ESTA VERIFICACIÓN
+                waitingMessage.style.display = 'none';
+            }
         } else {
             // Este jugador es el INVITADO
             isHost = false; // Asegúrate de que esta variable global se actualice correctamente aquí
             lobbySection.style.display = 'none'; // Oculta el lobby
             gameSetupSection.style.display = 'block'; // Muestra la sección de setup para el invitado (pero con mensaje de espera)
-            document.getElementById('categorySelectionArea').style.display = 'none';
+
+            const categoryArea = document.getElementById('categorySelectionArea');
+            if (categoryArea) { // <--- AÑADIR ESTA VERIFICACIÓN
+                categoryArea.style.display = 'none';
+
+            } else {
+                console.warn('Advertencia: #categorySelectionArea no encontrado al intentar ocultarlo para el invitado.');
+            }
             document.getElementById('startGameBtn').style.display = 'none';
             document.getElementById('waitingForHostMessage').style.display = 'block'; // Muestra el mensaje de espera
             roomMessages.textContent = '¡Sala lista! Esperando que el anfitrión elija categorías e inicie el juego...'; // Mensaje para el invitado
@@ -160,49 +182,45 @@ document.addEventListener('DOMContentLoaded', () => {
         startGameButton.style.display = 'none';
     });
 
-    // Evento del servidor cuando ambos jugadores han elegido su personaje secreto
     socket.on('allSecretsChosen', (gameData) => {
         console.log('¡Ambos personajes secretos elegidos! Juego iniciado:', gameData);
-        boardCharacters = gameData.boardCharacters; // Personajes en el tablero
-        secretCharacter = gameData.secretCharacter; // El personaje que DEBO adivinar (el del oponente)
+
+        // CORRECCIÓN: Asignar los personajes a la variable global ANTES de renderizar
+        boardCharacters = gameData.boardCharacters;
+        secretCharacter = gameData.secretCharacter;
         currentTurnPlayerId = gameData.currentPlayerTurn;
 
         myTurn = (socket.id === currentTurnPlayerId);
 
-        showGameBoard(); // Mostrar el tablero de juego principal
-        renderBoard(boardCharacters); // Renderiza todas las cartas del tablero
-        renderSecretCharacter(gameData.mySecretCharacter); // Renderiza *TU* personaje secreto en la sección lateral
+        showGameBoard();
+        renderBoard(boardCharacters);
+        renderSecretCharacter(gameData.mySecretCharacter);
 
-        // Generar preguntas de atributo para el juego
-        generateAttributeQuestions(boardCharacters); // Pasamos solo los personajes del tablero para extraer atributos
+        // CORRECCIÓN: Ahora, 'boardCharacters' ya tiene los datos.
+        generateAttributeQuestions(boardCharacters);
 
-        updateTurnIndicator(currentTurnPlayerId); // Actualiza el indicador de turno
+        updateTurnIndicator(currentTurnPlayerId);
         gameStatusMessage.textContent = '¡El juego ha comenzado!';
         alert('¡El juego ha comenzado!');
     });
 
     // Evento de respuesta a la pregunta (recibido por AMBOS jugadores)
     socket.on('questionAnswered', (data) => {
-        console.log(`Respuesta a la pregunta de ${data.playerId}: "${data.question}" - Respuesta: ${data.answer ? 'Sí' : 'No'}`);
+        console.log('Respuesta recibida:', data);
+
+        // Muestra la pregunta y la respuesta del oponente
         gameStatusMessage.textContent = `Pregunta: "${data.question}" - Respuesta: ${data.answer ? 'Sí' : 'No'}`;
 
-        console.log('Datos de la pregunta:', data); // Ver qué attrKey y attrValue llegan
-        console.log('Personaje secreto del oponente:', secretCharacter); // Para entender la respuesta
-        // Lógica para voltear cartas en TODOS los clientes
-        boardCharacters.forEach(char => {
-            // Asegúrate de que char.attributes y data.attrKey/attrValue existan
-            const charAttributeValue = char.attributes ? char.attributes[data.attrKey] : undefined;
-            const charHasAttribute = (charAttributeValue === data.attrValue);
-
-            console.log(`Evaluando personaje ${char.name}: Atributo ${data.attrKey} valor ${charAttributeValue}. ¿Coincide con pregunta ${data.attrValue}? ${charHasAttribute}`);
-
-            // Si la respuesta del secreto NO COINCIDE con la característica del personaje en el tablero, voltéala
-            if (data.answer !== charHasAttribute) {
-                toggleCard(char._id);
-            } else {
-                console.log(`NO volteando carta: ${char.name} porque la respuesta es ${data.answer ? 'Sí' : 'No'} y el personaje ${charHasAttribute ? 'Sí tiene' : 'No tiene'} el atributo.`);
-            }
-        });
+        // Usa la lista de IDs del servidor para voltear las cartas
+        if (data.charactersToFlip && Array.isArray(data.charactersToFlip)) {
+            data.charactersToFlip.forEach(characterId => {
+                // Llama a la función toggleCard por su nombre
+                toggleCard(characterId);
+            });
+            console.log(`Volteando ${data.charactersToFlip.length} cartas.`);
+        } else {
+            console.warn('El servidor no envió una lista válida de caracteres para voltear.');
+        }
     });
 
     // Evento de cambio de turno (recibido por AMBOS jugadores)
@@ -229,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('gameOver', (data) => {
         alert(data.message);
         gameStatusMessage.textContent = data.message;
-        setTimeout(() => window.location.reload(), 5000); // Recargar para volver al lobby
+        resetGameBtn.style.display = 'inline-block'; // Mostrar el botón de reinicio
     });
 
     socket.on('gameError', (message) => {
@@ -237,11 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error del servidor:', message);
         showLobby(); // Volver al lobby en caso de error grave
     });
-
-
     // --- 7. Event Listeners para la UI ---
-
-
     logoutBtn.addEventListener('click', async () => {
 
         try {
@@ -269,18 +283,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     createRoomBtn.addEventListener('click', () => {
-        const roomName = prompt('Ingresa un nombre para la nueva sala:'); // Pedimos el nombre de la sala aquí
-        if (roomName) {
-            // Emitir un evento 'createRoom' al servidor, pasando el nombre de la sala
-            socket.emit('createRoom', { roomName: roomName }); // El servidor determinará el hostId por el socket.id
-            roomMessages.textContent = `Intentando crear sala: ${roomName}...`;
-            hideLobbyControls(); // Ocultar controles mientras se procesa
-        } else {
-            // El usuario canceló el prompt o no ingresó nada
-            alert('El nombre de la sala no puede estar vacío.');
+        const roomName = roomIdInput.value.trim();
+        if (!roomName) {
+            alert('Debes escribir un nombre para la sala.');
+            return;
         }
+
+        socket.emit('joinRoom', roomName);
+        currentRoomId = roomName;
+        isHost = true; // quien crea la sala es el host
+        roomMessages.textContent = `Creando y uniéndote a la sala: ${roomName}...`;
+        hideLobbyControls();
     });
 
     joinRoomBtn.addEventListener('click', () => {
@@ -288,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (roomIdToJoin) {
             currentRoomId = roomIdToJoin;
             // Emitir un evento 'joinRoom' al servidor, pasando solo el ID de la sala
-            socket.emit('joinRoom', { roomName: roomIdToJoin }); // El servidor puede obtener el email del socket.handshake.query
+            socket.emit('joinRoom', roomIdToJoin); // El servidor puede obtener el email del socket.handshake.query
             isHost = false; // Este cliente no es el host
             roomMessages.textContent = `Uniéndote a la sala: ${roomIdToJoin}...`;
             hideLobbyControls();
@@ -404,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGameBoard() {
         lobbySection.style.display = 'none';
         gameSetupSection.style.display = 'none';
-        characterSelectionSection.style.display = 'none'; // Asegúrate de ocultarlo
+        characterSelectionSection.style.display = 'none';
         gameBoardSection.style.display = 'block';
         gameControls.style.display = 'flex'; // Usar flex para los controles
     }
@@ -489,10 +503,13 @@ document.addEventListener('DOMContentLoaded', () => {
             card.setAttribute('data-id', char._id);
             card.innerHTML = `
                 <img src="${char.imageUrl}" alt="${char.name}">
-                <p>${char.name}</p>
+            <p>${char.name}</p>
             `;
             // Añadir un evento de clic para voltear la carta
-            card.addEventListener('click', () => toggleCard(char._id));
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped'); // toggle es mejor para clics manuales
+            });
+
             gameBoardContentDiv.appendChild(card);
         });
     }
@@ -519,8 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('character-card', 'selectable-card'); // Añade clase para estilo/funcionalidad
             card.setAttribute('data-id', char._id);
             card.innerHTML = `
-                <img src="${char.imageUrl}" alt="${char.name}">
-                <p>${char.name}</p>
+                 <img src="${char.imageUrl}" alt="${char.name}">
+            <p>${char.name}</p>
             `;
             card.addEventListener('click', () => {
                 // Remover selección previa
@@ -543,9 +560,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.querySelector(`.character-card[data-id="${characterId}"]`);
         if (card) {
             card.classList.toggle('flipped');
-            console.log(`Tarjeta ${characterId} volteada (o desvolteada).`); // Añade este log
+            console.log(`Tarjeta ${characterId} volteada (o desvolteada).`);
         } else {
-            console.error(`Error: No se encontró la tarjeta con data-id="${characterId}" para voltear.`); // Añade este error
+            console.error(`Error: No se encontró la tarjeta con data-id="${characterId}" para voltear.`);
         }
     }
 
@@ -582,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Deshabilitar botón para evitar spam
                             event.target.disabled = true;
                             // Enviar pregunta al servidor
+
                             socket.emit('askQuestion', currentRoomId, {
                                 question: questionText,
                                 attrKey: attrKey,

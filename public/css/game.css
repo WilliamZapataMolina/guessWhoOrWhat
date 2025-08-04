@@ -1,0 +1,318 @@
+/* =================================
+   ESTILOS GENERALES Y NAVBAR
+   ================================= */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f4fdf7;
+  color: #23272f;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: linear-gradient(90deg, #0d6efd 70%, #47c8c1 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 1.2rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar a:hover {
+  color: #ffd966;
+}
+
+/* =================================
+   CONTENEDORES PRINCIPALES DEL JUEGO
+   ================================= */
+.game-main {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.game-section {
+  margin-bottom: 0;
+  background: linear-gradient(to bottom right, #ffffff, #f7faff);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.game-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.lobby-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lobby-controls input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.lobby-controls button {
+  padding: 0.75rem 1.2rem;
+  background-color: #3498db;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lobby-controls button:hover {
+  background-color: #2980b9;
+}
+
+#playerList {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+#playerList li {
+  padding: 0.5rem 1rem;
+  background-color: #ecf0f1;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+}
+/* =================================
+   CATEGORÍAS: CHECKBOXES ELEGANTES
+   ================================= */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.category-item {
+  background-color: #eef7f5;
+  border: 2px solid #cde6e1;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.category-item:hover {
+  background-color: #dff1ed;
+  border-color: #b1dad1;
+}
+
+.category-item input[type="checkbox"] {
+  accent-color: #0d6efd; /* Para navegadores modernos */
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.category-item label {
+  flex-grow: 1;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #23272f;
+  user-select: none;
+}
+
+/* =================================
+   TABLERO Y TARJETAS DE PERSONAJES (VERSIÓN SIMPLE)
+   ================================= */
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.25rem;
+  justify-items: center;
+}
+
+/* Estilo base de la tarjeta */
+.character-card {
+  width: 100%; /* La anchura la controla el grid */
+  height: 200px;
+  background: linear-gradient(180deg, #e7fff3 70%, #ffffff 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.09);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; /* ¡Importante para la capa oscura! */
+}
+
+.character-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(34, 139, 230, 0.11);
+}
+
+.character-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-bottom: 1px solid #b4e0c1;
+}
+
+.character-card p {
+  margin: 0;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ⭐ AQUÍ ESTÁ LA MAGIA: EL EFECTO DE CARTA DESCARTADA ⭐ */
+.character-card.flipped {
+  cursor: default; /* El cursor ya no es un puntero */
+}
+
+/* Creamos una capa semitransparente por encima de la carta volteada */
+.character-card.flipped::after {
+  content: ''; /* Requerido para que el pseudo-elemento se muestre */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(35, 39, 47, 0.7); /* Capa oscura (70% de opacidad) */
+  border-radius: 10px; /* Para que coincida con el borde de la tarjeta */
+  transition: background-color 0.3s ease;
+}
+
+/* =================================
+   TARJETA DEL PERSONAJE SECRETO
+   ================================= */
+.game-section#gameBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center !important; /* ¡Fuerza el centrado horizontal de los elementos hijos! */
+}
+
+.secret-character-card {
+    /* No es necesario el margin: 0 auto; ya que el padre se encarga de centrar */
+    width: 170px;
+    height: 220px;
+    background: linear-gradient(180deg, #f2fff4 60%, #e6f9ff 100%);
+    border-radius: 13px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15);
+    border: 3px solid #ffd966;
+}
+
+.secret-character-card img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.secret-character-card p {
+    margin: 0.75rem 0 0 0;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0d6efd;
+
+    /* También aplicamos la solución para nombres largos */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =================================
+   CONTROLES, INPUTS Y BOTONES
+   ================================= */
+.game-controls, .questions-section, .guess-section {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+input[type="text"], button {
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+input[type="text"] {
+  border: 1px solid #b1dad1;
+  width: 100%;
+  box-sizing: border-box; /* Asegura que padding no afecte la anchura total */
+}
+input[type="text"]:focus {
+  border-color: #0d6efd;
+  outline: 2px solid #b3e0ff;
+  background: #f2ffff;
+}
+
+button {
+  background: linear-gradient(90deg, #14a44d 40%, #0d6efd 100%);
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.25s;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #0d6efd 70%, #14a44d 100%);
+  box-shadow: 0 5px 18px rgba(13, 110, 253, 0.14);
+  transform: translateY(-2px);
+}
+
+#attributeQuestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}

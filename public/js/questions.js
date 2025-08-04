@@ -212,7 +212,7 @@ function handleQuestionClick(attrKey, attrValue, currentBoardCharacters, current
         }
     });
 
-    // Opcional: Contar cartas restantes, detectar fin de juego, etc.
+    // Contar cartas restantes, detectar fin de juego, etc.
     const remainingCards = document.querySelectorAll('.character-card:not(.flipped)').length;
     console.log(`Cartas restantes: ${remainingCards}`);
 
