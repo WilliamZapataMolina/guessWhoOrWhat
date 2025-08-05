@@ -3,8 +3,12 @@
     <a href="/" class="logo">Guess Who Or What</a>
     <div class="nav-links">
       <% if (user) { %>
-        <span class="welcome-message">¡Bienvenido, <%= user.email %>!</span>
+        <div class="user-info">
+          <img src="<%= user.avatar %>" alt="Avatar de <%= user.email %>" class="user-avatar">
+          <span class="welcome-message">¡Bienvenido, <%= user.email %>!</span>
+        </div>
         <a href="/profile" class="profile-link">Mi Perfil</a>
+        <a href="/game" class="game-link">Ir al Juego</a>
         <button id="logoutBtn">Cerrar Sesión</button>
       <% } else if (typeof showAuthLinks === 'undefined' || showAuthLinks) { %>
         <a href="/" class="login-link">Iniciar Sesión</a>

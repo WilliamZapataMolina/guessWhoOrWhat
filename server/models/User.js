@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png', // URL del avatar por defecto
     },
+    alias: {
+        type: String,
+        required: [true, 'Por favor, ingresa un alias'],
+        trim: true
+    },
     status: {
         gamesPlayed: { type: Number, default: 0 },
         gamesWon: { type: Number, default: 0 },

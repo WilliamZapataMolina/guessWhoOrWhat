@@ -37,7 +37,20 @@ body {
 .navbar a:hover {
   color: #ffd966;
 }
+/* Estilos para el avatar en la barra de navegación */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el avatar y el texto */
+}
 
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%; /* Esto hace que la imagen sea circular */
+    border: 2px solid #fff; /* Borde blanco para destacarlo */
+    object-fit: cover; /* Para que la imagen se vea bien sin distorsionarse */
+}
 /* =================================
    CONTENEDORES PRINCIPALES DEL JUEGO
    ================================= */

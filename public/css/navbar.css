@@ -1,0 +1,69 @@
+/* Estilos globales de la navbar */
+.navbar {
+    background: linear-gradient(90deg, #0d6efd 70%, #47c8c1 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar a:hover {
+    color: #ffd966;
+}
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Contenedor principal de los enlaces de navegación */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem; /* Espacio más grande entre los grupos de enlaces */
+}
+
+/* Estilos para el avatar y el nombre de usuario */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Agregamos una separación visual para agrupar los enlaces */
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    padding-right: 1.5rem;
+}
+
+.user-avatar {
+    /* Aumentamos el tamaño del avatar */
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+}
+
+.welcome-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.profile-link, .game-link, #logoutBtn {
+    /* Quitamos el margin-left para usar el gap del contenedor padre */
+    margin: 0;
+}

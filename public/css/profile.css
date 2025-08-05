@@ -1,127 +1,138 @@
-/* General page styling */
+/* Estilos globales para la página de perfil */
 body {
-  background-color: #f5f7fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-/* Navbar */
-.navbar {
-  background: linear-gradient(90deg, #0d6efd 70%, #47c8c1 100%);
-  color: #fff;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.navbar nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navbar a {
-  color: #fff;
-  text-decoration: none;
-  margin-left: 1.2rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.navbar a:hover {
-  color: #ffd966;
-}
-
-/* Main container for profile */
+/* Contenedor principal de la página de perfil */
 .profile-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-container h1 {
-  text-align: center;
-  margin-bottom: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
 }
 
-/* Avatar section */
+/* Sección de avatar y alias */
 .avatar-section {
-  text-align: center;
-  margin-bottom: 3rem;
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
-.avatar-section img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid #007bff;
-  margin-bottom: 1rem;
+.avatar-section h2 {
+    color: #555;
+    margin-bottom: 1.5rem;
 }
 
-.avatar-section input[type="file"] {
-  margin: 1rem 0;
+.avatar-section h3 {
+    color: #666;
+    margin-bottom: 0.5rem;
 }
 
-.avatar-section input[type="text"] {
-  display: block;
-  margin: 1rem auto;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 70%;
-  max-width: 300px;
+/* Estilo específico para el avatar actual (usando su ID) */
+#currentAvatar {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #0d6efd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
 }
 
-/* Button styling */
-.avatar-section button {
-  margin: 0.5rem;
-  padding: 0.6rem 1.2rem;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+/* Galería de avatares para seleccionar */
+.avatar-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 2rem;
 }
 
-.avatar-section button:hover {
-  background-color: #0056b3;
+/* Estilo para los avatares de la galería (usando su clase) */
+.avatar-option {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent; /* Borde transparente por defecto */
+    transition: border-color 0.2s, transform 0.2s;
 }
+
+/* Efecto hover y selección del avatar */
+.avatar-option:hover {
+    border-color: #6c757d;
+    transform: scale(1.05);
+}
+
+.avatar-option.border-primary {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13, 110, 253, 0.5);
+}
+
+/* Estilos de botones */
 button {
-  background: linear-gradient(90deg, #14a44d 40%, #0d6efd 100%);
-  color: #fff;
-  cursor: pointer;
-  border: none;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.25s;
+    background: linear-gradient(90deg, #14a44d 40%, #0d6efd 100%);
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    padding: 0.6rem 1.2rem; /* Agregado para consistencia */
+    border-radius: 8px; /* Agregado para consistencia */
 }
 
 button:hover {
-  background: linear-gradient(90deg, #0d6efd 70%, #14a44d 100%);
-  box-shadow: 0 5px 18px rgba(13, 110, 253, 0.14);
-  transform: translateY(-2px);
+    background: linear-gradient(90deg, #0d6efd 70%, #14a44d 100%);
+    box-shadow: 0 5px 18px rgba(13, 110, 253, 0.14);
+    transform: translateY(-2px);
 }
 
-/* Stats section */
+/* Inputs para alias */
+#aliasInput {
+    max-width: 400px;
+    margin: 0 auto 1rem;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Sección de estadísticas */
 .stats-section {
-  text-align: center;
-  background-color: #f1f1f1;
-  padding: 1.5rem;
-  border-radius: 8px;
+    text-align: center;
+    background-color: #e9ecef;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .stats-section h2 {
-  margin-bottom: 1rem;
+    color: #495057;
+    margin-bottom: 1.5rem;
 }
 
 .stats-section p {
-  font-size: 1.2rem;
-  margin: 0.5rem 0;
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin: 0.5rem 0;
+}
+
+.stats-section span {
+    font-weight: 600;
+    color: #0d6efd;
 }

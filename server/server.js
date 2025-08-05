@@ -12,11 +12,11 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 
 
-
 // Importar las rutas modularizadas
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const characterRoutes = require('./routes/characterRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Importa los middlewares de autenticación
 const { requireAuth, checkUser } = require('./middleware/authMiddleware');
@@ -24,6 +24,8 @@ const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 // Importa los modelos que necesitarás para la lógica del juego
 const Character = require('./models/Character');
 const Category = require('./models/Category');
+
+
 
 dotenv.config(); // Carga las variables de entorno desde el archivo .env
 
@@ -91,6 +93,8 @@ app.get('/game', (req, res) => {
 app.get('/profile', requireAuth, checkUser, (req, res) => {
     res.render('profile', { user: res.locals.user, footer: true });
 });
+
+app.use('/profile', profileRoutes);
 
 app.get('/logout', authController.logout_get);
 

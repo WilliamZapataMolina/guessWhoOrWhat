@@ -2940,7 +2940,7 @@
     "description": "Músico, compositor, cantante y activista por la paz británico, cofundador de The Beatles, la banda de rock más influyente de la historia.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["músico","cantante"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Británica",
