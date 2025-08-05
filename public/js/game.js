@@ -7,7 +7,9 @@ let allCategories = [];
 let selectedCategoryIds = [];
 let boardCharacters = []; // Personajes en el tablero de juego
 let secretCharacter = null; // El personaje SECRETO que ESTE JUGADOR debe adivinar (el del oponente)
+let askedQuestions = new Map();
 const TOTAL_GAME_CHARACTERS = 24; // Cantidad de personajes en el tablero
+
 
 // Variables para la selección del personaje secreto propio
 let charactersForSelection = []; // Personajes disponibles para elegir como secreto propio
@@ -51,7 +53,7 @@ const secretSelectionMessage = document.getElementById('secretSelectionMessage')
 const secretCharacterDisplay = document.getElementById('secretCharacterDisplay'); // Para mostrar TU personaje secreto
 const secretCharacterNameSpan = document.getElementById('secretCharacterName'); // Para el nombre del personaje secreto
 const secretCharacterImg = document.getElementById('secretCharacterImg'); // Para la imagen del personaje secreto
-const gameBoardContentDiv = document.getElementById('gameBoardContent'); // La cuadrícula de personajes
+
 
 // Elementos de Controles del Juego
 const gameControls = document.querySelector('.game-controls');
@@ -178,7 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
         charactersForSelection = data.characters;
         showCharacterSelection(); // Muestra la nueva sección de selección de personaje
         renderCharacterSelectionGrid(charactersForSelection); // Renderiza las cartas para elegir
-        // El botón de iniciar juego ya se oculta en showCharacterSelection, pero lo aseguramos
+
+        generateAttributeQuestions(charactersForSelection);
         startGameButton.style.display = 'none';
     });
 
@@ -221,19 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.warn('El servidor no envió una lista válida de caracteres para voltear.');
         }
-    });
 
-    // Evento de cambio de turno (recibido por AMBOS jugadores)
-    socket.on('turnChanged', (nextPlayerId) => {
-        console.log('Turno cambiado. Siguiente jugador ID:', nextPlayerId);
-        console.log('Mi socket ID:', socket.id);
-        updateTurnIndicator(nextPlayerId);
-        myTurn = (socket.id === nextPlayerId); // Actualizar el estado de mi turno
-        if (myTurn) {
-            alert('¡Es tu turno!');
-        } else {
-            alert('Turno del oponente.');
-        }
     });
 
     // Evento de adivinanza incorrecta (recibido por AMBOS jugadores)
@@ -448,24 +439,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Actualiza el indicador de turno en la UI
     function updateTurnIndicator(playerId) {
-        currentTurnPlayerId = playerId; // Actualiza la variable global
+        const turnIndicator = document.getElementById('turnIndicator');
+        const attributeQuestionsDiv = document.getElementById('attributeQuestions');
+        const guessCharacterBtn = document.getElementById('guessCharacterBtn');
+
         if (playerId === socket.id) {
             turnIndicator.textContent = '¡Es tu turno!';
             turnIndicator.style.color = 'green';
             // Habilitar los botones de pregunta y adivinar
             attributeQuestionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
             guessCharacterBtn.disabled = false;
-            // guessCharacterInput.disabled = false; // El input puede estar habilitado siempre
         } else {
             turnIndicator.textContent = 'Turno del oponente';
             turnIndicator.style.color = 'red';
             // Deshabilitar los botones de pregunta y adivinar
             attributeQuestionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
             guessCharacterBtn.disabled = true;
-            // guessedCharacterInput.disabled = true; // El input puede estar habilitado siempre
         }
     }
+    // Evento de cambio de turno (recibido por AMBOS jugadores)
+    socket.on('turnChanged', (nextPlayerId) => {
+        console.log('Turno cambiado. Siguiente jugador ID:', nextPlayerId);
+        console.log('Mi socket ID:', socket.id);
 
+        // Actualiza la variable global 'myTurn'
+        myTurn = (socket.id === nextPlayerId);
+
+        // Llama a la función unificada para actualizar toda la UI
+        updateTurnIndicator(nextPlayerId);
+        //updateGameStatus();
+    });
     // --- 9. Funciones de Carga y Renderizado de Componentes ---
 
     // Función para cargar categorías desde la API
@@ -495,25 +498,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para renderizar las tarjetas de personajes en el tablero de juego
+    // Función para renderizar las tarjetas de personajes en el tablero de juego
     function renderBoard(characters) {
+        const gameBoardContentDiv = document.getElementById('gameBoardContent');
         gameBoardContentDiv.innerHTML = ''; // Limpiar tablero
         characters.forEach(char => {
             const card = document.createElement('div');
             card.classList.add('character-card');
             card.setAttribute('data-id', char._id);
             card.innerHTML = `
-                <img src="${char.imageUrl}" alt="${char.name}">
+            <img src="${char.imageUrl}" alt="${char.name}">
             <p>${char.name}</p>
-            `;
-            // Añadir un evento de clic para voltear la carta
+        `;
+
+            // Evento de clic para la funcionalidad manual.
             card.addEventListener('click', () => {
-                card.classList.toggle('flipped'); // toggle es mejor para clics manuales
+                // Usa una clase de estilo diferente para el volteo manual
+                card.classList.toggle('manual-flipped');
             });
 
             gameBoardContentDiv.appendChild(card);
         });
     }
-
     // Función para renderizar el personaje secreto del JUGADOR en la sección lateral
     function renderSecretCharacter(character) {
         const secretCharacterDisplay = document.getElementById('secretCharacterDisplay');
@@ -522,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="${character.imageUrl}" alt="${character.name}" style="width: 100px; height: 100px; object-fit: cover;">
             <p>${character.name}</p>
         `;
-            console.log('Personaje secreto renderizado:', character.name); // Añade este log
+            console.log('Personaje secreto renderizado:', character.name);
         } else {
             console.error('Error: No se encontró secretCharacterDisplay o el personaje es nulo.', secretCharacterDisplay, character);
         }
@@ -555,16 +561,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Función para voltear una carta por su ID
+    // Función para voltear una carta por su ID.
     function toggleCard(characterId) {
+        console.log('toggleCard - Buscando tarjeta con ID:', characterId);
         const card = document.querySelector(`.character-card[data-id="${characterId}"]`);
+
         if (card) {
-            card.classList.toggle('flipped');
-            console.log(`Tarjeta ${characterId} volteada (o desvolteada).`);
+            // Usa una clase de estilo diferente para el volteo automático
+            card.classList.toggle('auto-flipped');
+            console.log(`toggleCard - ¡Éxito! Tarjeta encontrada y volteada: ${characterId}`);
         } else {
-            console.error(`Error: No se encontró la tarjeta con data-id="${characterId}" para voltear.`);
+            console.error(`toggleCard - Error: No se encontró la tarjeta con data-id="${characterId}" en el DOM.`);
         }
     }
+
+    // game.js
 
     function generateAttributeQuestions(characters) {
         attributeQuestionsDiv.innerHTML = '';
@@ -574,7 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (uniqueAttributes.hasOwnProperty(attrKey)) {
                 const possibleValues = Array.from(uniqueAttributes[attrKey]);
 
-                // Si el atributo es booleano, ordena los valores para que el 'true' aparezca primero
                 if (possibleValues.some(val => typeof val === 'boolean')) {
                     possibleValues.sort((a, b) => {
                         if (typeof a === 'boolean' && typeof b === 'boolean') {
@@ -589,7 +599,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 possibleValues.forEach(attrValue => {
                     const questionText = formatAttributeQuestion(attrKey, attrValue);
 
-                    // Solo crea el botón si la pregunta es válida (no es null)
                     if (questionText) {
                         const button = document.createElement('button');
                         button.textContent = questionText;
@@ -597,17 +606,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         button.setAttribute('data-attr-key', attrKey);
                         button.setAttribute('data-attr-value', attrValue);
 
+                        // Crea una clave única para la pregunta para poder rastrearla
+                        const questionId = `${attrKey}-${attrValue}`;
+
+                        // Si la pregunta ya ha sido hecha, la marcamos y deshabilitamos
+                        if (askedQuestions.has(questionId)) {
+                            button.classList.add('used');
+                            button.disabled = true;
+                        }
+
                         button.addEventListener('click', (event) => {
                             if (myTurn && currentRoomId) {
-                                // Deshabilita el botón para evitar spam
-                                event.target.disabled = true;
+                                if (!askedQuestions.has(questionId)) {
+                                    // Agrega la pregunta al Map antes de enviarla
+                                    askedQuestions.set(questionId, true);
 
-                                // Envía la pregunta formateada y los datos del atributo al servidor
-                                socket.emit('askQuestion', currentRoomId, {
-                                    question: questionText,
-                                    attrKey: attrKey,
-                                    attrValue: attrValue
-                                });
+                                    // Envía la pregunta formateada y los datos del atributo al servidor
+                                    socket.emit('askQuestion', currentRoomId, {
+                                        question: questionText,
+                                        attrKey: attrKey,
+                                        attrValue: attrValue
+                                    });
+
+                                    // Vuelve a renderizar las preguntas para actualizar el estado del botón
+                                    generateAttributeQuestions(characters);
+                                }
                             } else {
                                 alert('No es tu turno para preguntar.');
                             }

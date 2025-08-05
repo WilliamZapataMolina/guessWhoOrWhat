@@ -208,22 +208,20 @@ body {
   text-overflow: ellipsis;
 }
 
-/* ⭐ AQUÍ ESTÁ LA MAGIA: EL EFECTO DE CARTA DESCARTADA ⭐ */
-.character-card.flipped {
-  cursor: default; /* El cursor ya no es un puntero */
+/* EFECTO DE CARTA DESCARTADA MANUALMENTE */
+.character-card.manual-flipped {
+    opacity: 0.2;
+    filter: grayscale(100%);
+    pointer-events: none;
+    cursor: default;
 }
 
-/* Creamos una capa semitransparente por encima de la carta volteada */
-.character-card.flipped::after {
-  content: ''; /* Requerido para que el pseudo-elemento se muestre */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(35, 39, 47, 0.7); /* Capa oscura (70% de opacidad) */
-  border-radius: 10px; /* Para que coincida con el borde de la tarjeta */
-  transition: background-color 0.3s ease;
+/* EFECTO DE CARTA DESCARTADA AUTOMÁTICAMENTE */
+.character-card.auto-flipped {
+    opacity: 0.2;
+    filter: grayscale(100%);
+    pointer-events: none;
+    cursor: default;
 }
 
 /* =================================
@@ -315,4 +313,17 @@ button:hover {
   gap: 0.75rem;
   justify-content: center;
   margin-top: 0.5rem;
+}
+/* Estilo para los botones de preguntas que ya se han usado */
+.attribute-question-btn.used {
+    background-color: #bdc3c7; /* Color gris para indicar que está "descartado" */
+    color: #7f8c8d;
+    cursor: not-allowed; /* Cambia el cursor para indicar que no se puede hacer clic */
+    box-shadow: none;
+    border: 1px solid #95a5a6;
+}
+
+.attribute-question-btn.used:hover {
+    background-color: #bdc3c7; /* Desactiva el efecto hover en el botón usado */
+    transform: none; /* Desactiva la transformación del hover */
 }

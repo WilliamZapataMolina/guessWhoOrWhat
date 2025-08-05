@@ -457,7 +457,7 @@ io.on('connection', (socket) => {
                 playerId: socket.id,
                 question: question,
                 answer: answer,
-                charactersToFlip: charactersToFlip // CAMBIO 2: Renombrar la clave para mayor claridad
+                charactersToFlip: charactersToFlip // Renombrar la clave para mayor claridad
             });
 
             // Cambiar el turno al otro jugador
