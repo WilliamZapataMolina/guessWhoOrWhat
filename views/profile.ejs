@@ -18,12 +18,18 @@
       
       <div class="avatar-gallery d-flex flex-wrap gap-3 mb-3">
         <% const avatars = [
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar1.png',
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar2.png',
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar3.png',
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar4.png',
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar5.png',
-          'https://res.cloudinary.com/diddlk54m/image/upload/v1753104000/avatar6.png'
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754392801/avatar1_zovnnz.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754393061/avatar2_xolrz7.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754393203/avatar3_se0tgg.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754393513/avatar4_gto0tt.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754393648/avatar5_mz6rtf.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754393790/avatar6_tzbyl5.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754398336/avatar7_ii29i6.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754400594/avatar8_sc5ote.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754403050/avatar9_ur45li.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754403601/avatar10_hggdqh.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754403856/avatar11_al6etu.png',
+          'https://res.cloudinary.com/diddlk54m/image/upload/v1754404306/avatar12_mzaksh.png'
         ]; %>
 
         <% avatars.forEach(url => { %>
@@ -32,7 +38,7 @@
       </div>
 
       <h3 class="mb-2">Avatar actual</h3>
-      <img id="currentAvatar" src="images/default-avatar.png" alt="Avatar Actual" class="img-thumbnail mb-3" style="width: 150px;">
+     <img id="currentAvatar" src="<%= user.avatar %>" alt="Avatar Actual" class="img-thumbnail mb-3" style="width: 150px;">
       <div>
         <button id="saveAvatarBtn" class="btn btn-primary me-2">Guardar Avatar</button>
       </div>

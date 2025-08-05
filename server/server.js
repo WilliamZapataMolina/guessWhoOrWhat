@@ -88,8 +88,8 @@ app.get('/game', (req, res) => {
 });
 
 // Ruta para el perfil de usuario
-app.get('/profile', requireAuth, checkUser, (req, res) => { // Asegúrate de que checkUser esté aquí
-    res.render('profile', { user: res.locals.user, footer: true }); // Pasa res.locals.user
+app.get('/profile', requireAuth, checkUser, (req, res) => {
+    res.render('profile', { user: res.locals.user, footer: true });
 });
 
 app.get('/logout', authController.logout_get);

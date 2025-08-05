@@ -292,7 +292,7 @@ input[type="text"]:focus {
 }
 
 button {
-  background: linear-gradient(90deg, #14a44d 40%, #0d6efd 100%);
+  background: #14a44d;
   color: #fff;
   cursor: pointer;
   border: none;
@@ -302,7 +302,7 @@ button {
 }
 
 button:hover {
-  background: linear-gradient(90deg, #0d6efd 70%, #14a44d 100%);
+  background: #14a44f;
   box-shadow: 0 5px 18px rgba(13, 110, 253, 0.14);
   transform: translateY(-2px);
 }

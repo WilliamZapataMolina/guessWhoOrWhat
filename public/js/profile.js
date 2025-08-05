@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Mostrar datos por defecto antes de que el backend los proporcione ---
-    currentAvatarImg.src = "images/default-avatar.png";
+    // currentAvatarImg.src = "https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png";
     gamesPlayedSpan.textContent = "N/A";
     winsSpan.textContent = "N/A";
     lossesSpan.textContent = "N/A";

@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: 'default_avatar.png'
+        default: 'https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png', // URL del avatar por defecto
     },
     status: {
         gamesPlayed: { type: Number, default: 0 },
