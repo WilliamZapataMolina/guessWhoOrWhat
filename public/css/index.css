@@ -10,30 +10,6 @@ body {
     flex-direction: column;
 }
 
-/* Navbar */
-.navbar {
-    background-color: #0d6efd;
-    color: white;
-    padding: 1rem 2rem;
-}
-
-.navbar nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.navbar a {
-    color: white;
-    text-decoration: none;
-    margin-left: 1rem;
-}
-
-.navbar .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
 /* Main content */
 main {
     flex: 1;
@@ -91,4 +67,11 @@ footer {
     background-color: #e9ecef;
     color: #555;
     font-size: 0.9rem;
+}
+.credits-section {
+        font-size: 0.8rem;
+        color: #666;
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
 }

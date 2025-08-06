@@ -26,10 +26,15 @@ const userSchema = new mongoose.Schema({
     },
     alias: {
         type: String,
-        required: [true, 'Por favor, ingresa un alias'],
-        trim: true
+        unique: true,
+        trim: true,
+        default: function () {
+            // Genera un alias por defecto aleatorio, por ejemplo
+            const randomNum = Math.floor(1000 + Math.random() * 900);
+            return `Jugador-${randomNum}`;
+        }
     },
-    status: {
+    stats: {
         gamesPlayed: { type: Number, default: 0 },
         gamesWon: { type: Number, default: 0 },
         gamesLost: { type: Number, default: 0 },

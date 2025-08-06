@@ -10,7 +10,7 @@ const cookieParser = require('cookie-parser');
 const authController = require('./controllers/authController');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
-
+//const reconnectionTimers = new Map(); // Para manejar reconexiones de Socket.IO
 
 // Importar las rutas modularizadas
 const authRoutes = require('./routes/authRoutes');
@@ -118,68 +118,49 @@ const io = new Server(server, {
     }
 });
 
-// Middleware de Socket.IO para autenticar y manejar sesiones duplicadas
+// Middleware de Socket.IO para autenticación
 io.use(async (socket, next) => {
-    // Si tu token está en una cookie HTTP-only, esta es la forma correcta de acceder a ella.
-    const token = socket.request.cookies.jwt;
+    // Obtener el token JWT de la cookie o de la autenticación del handshake
+    const token = socket.handshake.auth.token || (socket.handshake.headers.cookie && socket.handshake.headers.cookie.split('; ').find(row => row.startsWith('jwt='))?.split('=')[1]);
 
-    if (!token) {
-        console.warn('[Socket.IO Middleware] No se encontró token en la cookie JWT, autenticación denegada.');
-        return next(new Error('Authentication error: Token not provided'));
-    }
+    if (token) {
+        try {
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decodedToken.id);
+            if (user) {
+                socket.userId = user._id.toString();
+                socket.userEmail = user.email;
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id);
+                // === CAMBIO CRUCIAL ===
+                // Simplemente actualizamos el socket activo. La nueva conexión SIEMPRE gana.
+                activeUserSockets.set(socket.userId, socket.id);
+                console.log(`[Middleware] Usuario ${socket.userEmail} (ID: ${socket.userId}) autenticado. Socket activo: ${activeUserSockets.get(socket.userId)}`);
 
-        if (!user) {
-            console.warn('[Socket.IO Middleware] Usuario no encontrado para el token. ID:', decoded.id);
-            return next(new Error('Authentication error: User not found'));
+                next();
+            } else {
+                console.log('Usuario no encontrado en la base de datos.');
+                next(new Error('Auth failed: User not found.'));
+            }
+        } catch (err) {
+            console.log('Error de verificación de JWT:', err.message);
+            next(new Error('Auth failed: Invalid token.'));
         }
-
-        socket.userEmail = user.email;
-        socket.userId = user._id.toString();
-
-        console.log(`[Socket.IO Middleware] Autenticación exitosa para ${socket.userEmail} (${socket.id}).`);
-        next();
-    } catch (error) {
-        console.error('[Socket.IO Middleware] Error de verificación de token:', error.message);
-        return next(new Error('Authentication error: Invalid token'));
+    } else {
+        console.log('No se encontró token JWT en el handshake.');
+        next(new Error('Auth failed: No token.'));
     }
 });
 
 io.on('connection', (socket) => {
     const { userEmail, userId } = socket;
 
-    if (activeUserSockets.has(userId)) {
-        const existingSocketId = activeUserSockets.get(userId);
-        const existingSocket = io.sockets.sockets.get(existingSocketId);
-
-        if (existingSocket && existingSocket.connected && existingSocketId !== socket.id) {
-            console.warn(`Usuario ${userEmail} (ID: ${userId}) ya tiene una sesión activa con socket ID: ${existingSocketId}. Desconectando la nueva conexión ${socket.id} para evitar sesiones duplicadas.`);
-            socket.emit('authError', 'Ya tienes una sesión activa en otra computadora o pestaña con esta cuenta. Cierra la otra instancia para poder jugar aquí.');
-            socket.disconnect(true); // Desconectar el NUEVO socket inmediatamente
-            return; // Detener el procesamiento para este socket
-        } else {
-            if (existingSocketId !== socket.id) {
-                console.log(`Usuario ${userEmail} (ID: ${userId}) reemplazando socket activo de ${existingSocketId} con nueva conexión ${socket.id} (anterior socket ya no está activo o es reconexión).`);
-            } else {
-                console.log(`Usuario ${userEmail} (ID: ${userId}) reconectado con el mismo socket ID: ${socket.id}.`);
-            }
-            activeUserSockets.set(userId, socket.id); // Actualizar al nuevo socket ID (o reafirmar el mismo)
-        }
-    } else {
-        // Caso: No hay ningún socket activo registrado para este usuario.
-        // --> Esta es la primera conexión para este userId.
-        activeUserSockets.set(userId, socket.id);
-        console.log(`Un usuario se ha conectado: ${socket.id} (Email: ${userEmail}, UserId: ${userId}) - Primera conexión.`);
-    }
-    console.log(`[Sesión Activa] Usuario ${userEmail} (ID: ${userId}) ahora vinculado al socket: ${activeUserSockets.get(userId)}`);
+    // El middleware ya autenticó al usuario y gestionó la sesión.
+    console.log(`Un usuario se ha conectado: ${socket.id} (Email: ${userEmail}, UserId: ${userId})`);
 
     // Al conectar, emitir el email del usuario de vuelta al cliente
     socket.emit('loggedInSuccessfully', userEmail);
 
-    // --- Manejar el evento 'joinRoom' para que los jugadores se unan a una sala ---
+
     socket.on('joinRoom', (roomId) => {
         const userEmail = socket.userEmail;
         const userId = socket.userId;
@@ -189,77 +170,52 @@ io.on('connection', (socket) => {
             return;
         }
 
-        let room = rooms.get(roomId);
-
-        // 1. **Verificar si el usuario ya está en ESTA sala.**
-        const playerInThisRoom = room ? room.players.find(p => p.userId === userId) : null;
-
-        if (playerInThisRoom) {
-            if (playerInThisRoom.id !== socket.id) {
-                // Es una reconexión/nueva pestaña del MISMO usuario en la MISMA sala.
-                console.log(`Reconexión detectada para ${userEmail} en sala ${roomId}. Socket antiguo: ${playerInThisRoom.id}, Nuevo socket: ${socket.id}`);
-
-                playerInThisRoom.id = socket.id; // Actualizar el socket ID en el objeto del jugador
-
-                // También actualizar player1Id/player2Id y hostId si este socket era uno de ellos
-                if (room.player1Id === playerInThisRoom.id) {
-                    room.player1Id = socket.id;
-                } else if (room.player2Id === playerInThisRoom.id) {
-                    room.player2Id = socket.id;
-                }
-                if (room.hostId === playerInThisRoom.id) {
-                    room.hostId = socket.id;
-                }
-
-                // Actualizar los Mapas playerEmails y playerUserIds con el nuevo socket.id
-                room.playerEmails.delete(playerInThisRoom.id);
-                room.playerUserIds.delete(playerInThisRoom.id);
-
-                room.playerEmails.set(socket.id, userEmail);
-                room.playerUserIds.set(socket.id, userId);
-
-                socket.join(roomId);
-
-                io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players);
-                console.log(`Usuario ${userEmail} (${socket.id}) se reconectó a la sala ${roomId}. Sockets en sala actualizados.`);
-                return;
-            } else {
-                // Es el mismo socket intentando unirse a la misma sala (re-emisión del evento joinRoom)
-                console.log(`Usuario ${userEmail} (${socket.id}) ya está en la sala ${roomId} con el mismo socket. Reenviando estado de la sala.`);
-                io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players); // Reenviar estado de la sala
-                return;
-            }
-        }
-
-        // 2. **Verificar si el usuario ya está en OTRA sala.**
-        let currentRoomIdForUserInAnyRoom = null;
+        // --- NUEVA LÓGICA: Verificar si el usuario ya está en CUALQUIER sala y notificar ---
+        let currentRoomIdForUser = null;
         for (const [rId, r] of rooms.entries()) {
             if (r.players.some(p => p.userId === userId)) {
-                currentRoomIdForUserInAnyRoom = rId;
+                currentRoomIdForUser = rId;
                 break;
             }
         }
 
-        if (currentRoomIdForUserInAnyRoom && currentRoomIdForUserInAnyRoom !== roomId) {
-            socket.emit('gameError', `Ya estás jugando o esperando en la sala "${currentRoomIdForUserInAnyRoom}". Por favor, sal de esa sala antes de unirte a "${roomId}".`);
-            return;
+        if (currentRoomIdForUser) {
+            // El usuario ya está en una sala.
+            if (currentRoomIdForUser === roomId) {
+                // Es el mismo usuario en la misma sala (reconexión o nueva pestaña).
+                // La lógica de reconexión actual es robusta y no requiere cambios aquí.
+                // Para simplificar, simplemente notificamos que ya está en la sala.
+                console.log(`Usuario ${userEmail} (${socket.id}) ya está en la sala ${roomId}. Reenviando estado de la sala.`);
+                const room = rooms.get(roomId);
+                io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players);
+                return;
+            } else {
+                // El usuario ya está en OTRA sala.
+                console.log(`Usuario ${userEmail} (${socket.id}) intentó unirse a sala ${roomId} pero ya está en sala ${currentRoomIdForUser}.`);
+                socket.emit('gameError', `Ya estás en una partida en la sala "${currentRoomIdForUser}". Por favor, sal de esa sala antes de unirte.`);
+                return;
+            }
         }
+        // --- FIN DE LA NUEVA LÓGICA ---
 
-        // 3. Si llega aquí, es un nuevo usuario para esta sala o la sala necesita ser creada.
+        // Si llega a este punto, el usuario no está en ninguna sala, por lo que podemos proceder.
+        let room = rooms.get(roomId);
+
         if (!room) {
+            // Lógica para crear una nueva sala
             room = {
                 id: roomId,
-                players: [], // Lista de objetos { id: socket.id, email: userEmail, userId: userId }
-                player1Id: null, // Será el socket.id del primero en unirse
-                player2Id: null, // Será el socket.id del segundo
-                hostId: socket.id, // El host es el primero que la crea
+                players: [],
+                player1Id: null,
+                player2Id: null,
+                hostId: socket.id,
                 gameStarted: false,
                 boardCharacters: [],
                 selectedSecretCharacters: new Map(),
                 readyForGame: new Set(),
                 currentPlayerTurn: null,
-                playerEmails: new Map(), // Para mapear socket.id a email
-                playerUserIds: new Map() // Para mapear socket.id a userId
+                playerEmails: new Map(),
+                playerUserIds: new Map()
             };
             rooms.set(roomId, room);
             console.log(`Sala ${roomId} creada por ${userEmail} (${socket.id}).`);
@@ -280,17 +236,15 @@ io.on('connection', (socket) => {
         }
 
         // Añadir el jugador a la lista de la sala
-        socket.join(roomId); // Unir el socket al 'room' de Socket.IO
+        socket.join(roomId);
         room.players.push({ id: socket.id, email: userEmail, userId: userId });
         room.playerEmails.set(socket.id, userEmail);
         room.playerUserIds.set(socket.id, userId);
 
         console.log(`${userEmail} (${socket.id}) se unió a la sala ${roomId}. Jugadores actuales: ${room.players.map(p => p.email).join(', ')}`);
 
-        // Notificar a todos en la sala (incluido el que se acaba de unir)
         io.to(roomId).emit('playerJoined', userEmail, room.players.length, room.players);
 
-        // Si la sala tiene 2 jugadores, está lista para empezar
         if (room.players.length === 2) {
             console.log(`Sala ${roomId} está lista para jugar. Jugadores: ${room.players.map(p => p.email).join(', ')}`);
             io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players);
@@ -475,7 +429,7 @@ io.on('connection', (socket) => {
     });
 
     // Manejar adivinanzas de los jugadores
-    socket.on('makeGuess', (roomId, guessedCharacterId) => {
+    socket.on('makeGuess', async (roomId, guessedCharacterId) => {
         const room = rooms.get(roomId);
         if (room && room.gameStarted && socket.id === room.currentPlayerTurn) {
             // Busca el oponente por userId (ACTUALIZADO)
@@ -493,7 +447,14 @@ io.on('connection', (socket) => {
             }
             const isCorrect = opponentSecretChar._id.toString() === guessedCharacterId;
 
+            let winnerUserId, loserUserId;
+
             if (isCorrect) {
+
+                winnerUserId = socket.userId; // El jugador que adivinó correctamente
+                loserUserId = opponentPlayer.userId; // El oponente pierde
+
+
                 // El jugador adivinó correctamente
                 io.to(roomId).emit('gameOver', {
                     winnerId: socket.id,
@@ -502,6 +463,9 @@ io.on('connection', (socket) => {
                 console.log(`Juego terminado en sala ${roomId}. Ganador: ${socket.id}`);
                 rooms.delete(roomId); // Eliminar la sala
             } else {
+
+                winnerUserId = opponentPlayer.userId; // El oponente gana
+                loserUserId = socket.userId; // El jugador que adivinó incorrectamente
                 // El jugador adivinó incorrectamente y pierde
                 const loserId = socket.id;
                 const winnerId = opponentId; // El otro jugador gana si el que adivina falla (ACTUALIZADO)
@@ -511,6 +475,21 @@ io.on('connection', (socket) => {
                 });
                 console.log(`Juego terminado en sala ${roomId}. ${loserId} perdió.`);
                 rooms.delete(roomId); // Eliminar la sala
+            }
+            // === Lógica para actualizar las estadísticas ===
+            try {
+                await User.findOneAndUpdate(
+                    { _id: winnerUserId },
+                    { $inc: { 'stats.gamesPlayed': 1, 'stats.gamesWon': 1 } }
+                );
+
+                await User.findOneAndUpdate(
+                    { _id: loserUserId },
+                    { $inc: { 'stats.gamesPlayed': 1, 'stats.gamesLost': 1 } }
+                );
+                console.log(`Estadísticas actualizadas para el ganador (${winnerUserId}) y el perdedor (${loserUserId}).`);
+            } catch (err) {
+                console.error('Error al actualizar estadísticas en makeGuess:', err);
             }
         } else {
             socket.emit('gameError', 'No es tu turno o el juego no ha iniciado para adivinar.');
@@ -542,60 +521,53 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Manejar desconexiones de usuarios
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         const disconnectedUserEmail = socket.userEmail;
         const disconnectedUserId = socket.userId;
         console.log(`Un usuario se ha desconectado: ${socket.id} (Email: ${disconnectedUserEmail})`);
 
-        // Remover el socket de la lista de sockets activos para ese usuario
-        // Note: activeUserSockets should ideally map userId to socketId directly to simplify checks
-        // For now, we'll continue with the Set if you intend to allow multiple sockets per user for other features,
-        // but for game logic, it seems you want single active session per user.
-        if (disconnectedUserId && activeUserSockets.get(disconnectedUserId) === socket.id) {
+        if (activeUserSockets.get(disconnectedUserId) === socket.id) {
             activeUserSockets.delete(disconnectedUserId);
-            console.log(`Usuario ${disconnectedUserEmail} (ID: ${disconnectedUserId}) completamente inactivo (socket principal desconectado).`);
+            console.log(`Usuario ${disconnectedUserEmail} (ID: ${disconnectedUserId}) limpiado de sesiones activas.`);
         } else {
-            console.log(`Socket ${socket.id} de ${disconnectedUserEmail} (ID: ${disconnectedUserId}) se desconectó, pero otro socket para este usuario puede estar activo o este no era el principal registrado.`);
+            console.log(`Socket antiguo ${socket.id} de ${disconnectedUserEmail} se desconectó, pero no era el socket principal registrado.`);
         }
 
-
-        // Recorrer las salas para ver si el usuario estaba en alguna
         for (const [roomId, room] of rooms.entries()) {
             const playerIndex = room.players.findIndex(p => p.userId === disconnectedUserId);
 
             if (playerIndex !== -1) {
-                // Verificar si el socket que se desconecta es el socket actualmente registrado en la sala para ese userId
                 if (room.players[playerIndex].id === socket.id) {
-                    room.players.splice(playerIndex, 1); // Eliminar al jugador
-                    room.playerEmails.delete(socket.id); // Limpiar Maps auxiliares
-                    room.playerUserIds.delete(socket.id);
+                    if (room.gameStarted) {
+                        const opponentPlayer = room.players.find(p => p.userId !== disconnectedUserId);
 
-                    console.log(`Usuario ${disconnectedUserEmail} (${socket.id}) salió de la sala ${roomId}. Jugadores restantes: ${room.players.length}`);
+                        if (opponentPlayer) {
+                            console.log(`Jugador ${disconnectedUserEmail} (${socket.id}) desconectado de una partida en curso en sala ${roomId}.`);
 
-                    io.to(roomId).emit('playerLeft', socket.id, room.players.length);
+                            // Notificamos al oponente que la partida ha terminado por desconexión
+                            io.to(opponentPlayer.id).emit('gameOver', {
+                                winnerId: opponentPlayer.id,
+                                message: `Tu oponente se ha desconectado. ¡${room.playerEmails.get(opponentPlayer.id)} ganaste!`
+                            });
 
-                    if (room.players.length === 0) {
-                        rooms.delete(roomId);
-                        console.log(`Sala ${roomId} eliminada por falta de jugadores.`);
-                    } else if (room.gameStarted) {
-                        // Si el juego estaba en curso y un jugador se desconecta, el otro gana
-                        if (room.player1Id === socket.id) {
-                            room.player1Id = room.players[0] ? room.players[0].id : null;
-                        } else if (room.player2Id === socket.id) {
-                            room.player2Id = room.players[0] ? room.players[0].id : null;
+                            // --- LÓGICA DE ACTUALIZACIÓN DE ESTADÍSTICAS ELIMINADA AQUÍ ---
+                            // Ya no se actualizan las victorias/derrotas al desconectarse.
+                            // Solo se actualizan al terminar el juego con una adivinanza.
+
                         }
-                        if (room.hostId === socket.id && room.players.length > 0) {
-                            room.hostId = room.players[0].id;
-                            console.log(`Host de sala ${roomId} transferido a ${room.players[0].email} (${room.players[0].id}).`);
-                        }
-
-                        io.to(roomId).emit('gameOver', {
-                            winnerId: room.players[0].id, // El único jugador restante es el ganador
-                            message: `El otro jugador se desconectó. ¡${room.playerEmails.get(room.players[0].id)} ganaste!`
-                        });
                         rooms.delete(roomId);
-                        console.log(`Juego en sala ${roomId} terminado por desconexión.`);
+                    } else {
+                        room.players.splice(playerIndex, 1);
+                        room.playerEmails.delete(socket.id);
+                        room.playerUserIds.delete(socket.id);
+
+                        console.log(`Usuario ${disconnectedUserEmail} (${socket.id}) salió de la sala ${roomId}. Jugadores restantes: ${room.players.length}`);
+                        io.to(roomId).emit('playerLeft', socket.id, room.players.length);
+
+                        if (room.players.length === 0) {
+                            rooms.delete(roomId);
+                            console.log(`Sala ${roomId} eliminada por falta de jugadores.`);
+                        }
                     }
                 } else {
                     console.log(`Socket antiguo ${socket.id} de ${disconnectedUserEmail} se desconectó, pero el usuario sigue activo en la sala ${roomId} con el socket ${room.players[playerIndex].id}.`);

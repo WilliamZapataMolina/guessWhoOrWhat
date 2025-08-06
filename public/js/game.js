@@ -53,7 +53,7 @@ const secretSelectionMessage = document.getElementById('secretSelectionMessage')
 const secretCharacterDisplay = document.getElementById('secretCharacterDisplay'); // Para mostrar TU personaje secreto
 const secretCharacterNameSpan = document.getElementById('secretCharacterName'); // Para el nombre del personaje secreto
 const secretCharacterImg = document.getElementById('secretCharacterImg'); // Para la imagen del personaje secreto
-
+const turnSound = document.getElementById('turn-sound');
 
 // Elementos de Controles del Juego
 const gameControls = document.querySelector('.game-controls');
@@ -367,7 +367,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 8. Funciones Auxiliares de UI (Mantener o adaptar) ---
-
+    function playTurnSound() {
+        if (turnSound) {
+            turnSound.currentTime = 0; // Reinicia el audio por si aún está sonando
+            turnSound.play().catch(error => {
+                // Maneja el error de reproducción si el navegador lo bloquea
+                console.error("No se pudo reproducir el sonido:", error);
+            });
+        }
+    }
     // Muestra solo la sección del lobby
     function showLobby() {
         lobbySection.style.display = 'block';
@@ -446,6 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playerId === socket.id) {
             turnIndicator.textContent = '¡Es tu turno!';
             turnIndicator.style.color = 'green';
+
+            // Reproducir sonido si es mi turno ---
+            playTurnSound();
+
             // Habilitar los botones de pregunta y adivinar
             attributeQuestionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
             guessCharacterBtn.disabled = false;
@@ -467,7 +479,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Llama a la función unificada para actualizar toda la UI
         updateTurnIndicator(nextPlayerId);
-        //updateGameStatus();
+
+
+
     });
     // --- 9. Funciones de Carga y Renderizado de Componentes ---
 
@@ -528,8 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="secret-character-card">
               <img src="${character.imageUrl}" alt="${character.name}" class="secret-character-img">
             <p class="secret-character-name">${character.name}</p>
-            </div>
-        `;
+        </div>        `;
             console.log('Personaje secreto renderizado:', character.name);
         } else {
             console.error('Error: No se encontró secretCharacterDisplay o el personaje es nulo.', secretCharacterDisplay, character);

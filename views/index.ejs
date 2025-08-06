@@ -20,18 +20,15 @@
   <input type="password" id="authPassword" name="password" required placeholder="Contraseña">
   <div id="authErrors" style="color: red; margin-top: 10px;"></div>
 
-  <button type="submit" id="loginBtn">Iniciar Sesión</button>
-  <button type="submit" id="registerBtn">Registrarse</button>
+  <button type="button" id="loginBtn">Iniciar Sesión</button>
+  <button type="button" id="registerBtn">Registrarse</button>
 </form>
     </main>
 
-    <footer>
-        <p>&copy; 2025 William Zapata - Guess Who or What</p>
-    </footer>
+     <%- include('parts/footer', { user: user }) %>
     <script src="/socket.io/socket.io.js"></script>
     <script src="thirdparty/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
    <script src="/js/login.js"></script>
    
-
 </body>
 </html>

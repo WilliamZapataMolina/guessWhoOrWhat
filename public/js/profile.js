@@ -114,14 +114,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Cargar datos del perfil al inicio ---
+    async function fetchUserProfileData() {
+        try {
+            const response = await fetch('/profile/data');
+            if (response.ok) {
+                const data = await response.json();
+                // Actualizar el avatar y alias en la interfaz
+                aliasInput.value = data.alias || userEmail;
+                currentAvatarImg.src = data.avatarUrl || "https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png";
+                gamesPlayedSpan.textContent = data.stats.gamesPlayed !== undefined ? data.stats.gamesPlayed : 0;
+                winsSpan.textContent = data.stats.gamesWon !== undefined ? data.stats.gamesWon : "0";
+                lossesSpan.textContent = data.stats.gamesLost !== undefined ? data.stats.gamesLost : "0";
 
-    // --- Mostrar datos por defecto antes de que el backend los proporcione ---
-    // currentAvatarImg.src = "https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png";
-    gamesPlayedSpan.textContent = "N/A";
-    winsSpan.textContent = "N/A";
-    lossesSpan.textContent = "N/A";
+                console.log('Datos del perfil cargados:', data);
+            } else {
+                console.error('Error al cargar los datos del perfil:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al conectar con el servidor:', error);
+        }
+    }
 
-    console.log('Lógica del perfil cargada para el usuario:', userEmail);
-
-    // 🔄 (Opcional) Aquí podrías hacer un fetch para cargar el avatar y alias reales si tu backend lo permite
+    //Llamar a la función para cargar los datos del perfil al inicio
+    fetchUserProfileData();
 });

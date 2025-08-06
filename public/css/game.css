@@ -10,47 +10,6 @@ body {
   min-height: 100vh;
 }
 
-.navbar {
-  background: linear-gradient(90deg, #0d6efd 70%, #47c8c1 100%);
-  color: #fff;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.navbar nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navbar a {
-  color: #fff;
-  text-decoration: none;
-  margin-left: 1.2rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.navbar a:hover {
-  color: #ffd966;
-}
-/* Estilos para el avatar en la barra de navegación */
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espacio entre el avatar y el texto */
-}
-
-.user-avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%; /* Esto hace que la imagen sea circular */
-    border: 2px solid #fff; /* Borde blanco para destacarlo */
-    object-fit: cover; /* Para que la imagen se vea bien sin distorsionarse */
-}
 /* =================================
    CONTENEDORES PRINCIPALES DEL JUEGO
    ================================= */
@@ -127,7 +86,7 @@ body {
   border-radius: 8px;
 }
 /* =================================
-   CATEGORÍAS: CHECKBOXES ELEGANTES
+   CATEGORÍAS: CHECKBOXES 
    ================================= */
 .category-grid {
   display: grid;
@@ -169,56 +128,59 @@ body {
 }
 
 /* =================================
-   TABLERO Y TARJETAS DE PERSONAJES 
-   ================================= */
+    TABLERO Y TARJETAS DE PERSONAJES
+    ================================= */
 .character-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1.25rem;
-  justify-items: center;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.25rem;
+    justify-items: center;
 }
 
 /* Estilo base de la tarjeta */
 .character-card {
-  width: 100%; /* La anchura la controla el grid */
-  height: 200px;
-  background: linear-gradient(180deg, #e7fff3 70%, #ffffff 100%);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 2px solid #e0e0e0;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.09);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative; /* ¡Importante para la capa oscura! */
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(180deg, #e7fff3 70%, #ffffff 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.09);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
 }
 
 .character-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(34, 139, 230, 0.11);
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(34, 139, 230, 0.11);
 }
 
 .character-card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-bottom: 1px solid #b4e0c1;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-bottom: 1px solid #b4e0c1;
 }
 
 .character-card p {
-  margin: 0;
-  padding: 0.5rem;
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    margin: 0;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* --- CAMBIOS AQUÍ --- */
+    white-space: normal;  /* Permite que el texto se envuelva */
+    overflow: visible;    /* Asegura que el texto sea visible */
+    text-overflow: clip;  /* Evita los puntos suspensivos */
+    line-height: 1.2;     /* Mejora la separación entre líneas */
 }
 
 /* EFECTO DE CARTA DESCARTADA MANUALMENTE */
@@ -245,28 +207,26 @@ body {
     flex-direction: column;
     align-items: center;
 }
-/* Regla para el nuevo contenedor que centra la tarjeta */
 .secret-character-area {
-    width: 100%; /* Aseguramos que ocupe todo el ancho disponible */
-    display: flex; /* Usamos Flexbox para centrar su contenido */
-    justify-content: center; /* Centra horizontalmente a la tarjeta dentro de este contenedor */
-    margin-bottom: 1.5rem; /* Separación con el tablero de juego */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
 }
 .secret-character-card {
     width: 200px;
     height: 260px;
     background: linear-gradient(180deg, #f2fff4 60%, #e6f9ff 100%);
     border-radius: 13px;
-    padding: 15px; 
+    padding: 15px;
     box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
     border: 3px solid #ffd966;
     
-    /* ¡AQUÍ ESTÁ LA CLAVE! Aplicamos Flexbox directamente a esta clase */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centra el contenido verticalmente */
-    align-items: center; /* Centra el contenido horizontalmente */
-
+    justify-content: flex-start; /* Cambio aquí: Alinea el contenido arriba */
+    align-items: center;
+    
     z-index: 10;
     margin-bottom: 2rem;
     transform: scale(1.05);
@@ -275,21 +235,25 @@ body {
 
 .secret-character-card img {
     width: 100%;
-    height: 180px; /* Un poco más de altura para la imagen */
+    height: 180px;
     object-fit: cover;
     border-radius: 8px;
     border: 2px solid #ccc;
 }
 
 .secret-character-card p {
-    margin: 1rem 0 0 0; /* Más espacio entre la imagen y el nombre */
+    margin: 0.5rem 0 0 0; /* Cambio de margen para separar la imagen del texto envuelto */
+    padding: 0 0.5rem;   /* Añadir padding para que el texto no se pegue a los bordes */
     text-align: center;
-    font-size: 1.2rem; /* Letra un poco más grande y legible */
+    font-size: 1.2rem;
     font-weight: 700;
     color: #0d6efd;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    
+    /* --- CAMBIOS AQUÍ --- */
+    white-space: normal;  /* Permite que el texto se envuelva */
+    overflow: visible;    /* Asegura que el texto sea visible */
+    text-overflow: clip;  /* Evita los puntos suspensivos */
+    line-height: 1.3;     /* Ajusta la separación entre líneas para mejor lectura */
 }
 
 /* =================================

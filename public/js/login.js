@@ -8,56 +8,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let action = 'login'; // valor por defecto
 
-    // Determinar si el usuario quiere iniciar sesión o registrarse
-    loginBtn?.addEventListener('click', (e) => {
-        action = 'login';
-    });
+    // Lógica para enviar el formulario
+    const submitForm = async (event) => {
+        event.preventDefault();
 
-    registerBtn?.addEventListener('click', (e) => {
-        action = 'signup';
-    });
+        authErrors.textContent = ''; // limpiar errores anteriores
 
-    if (form) {
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
 
-            authErrors.textContent = ''; // limpiar errores anteriores
+        try {
+            const res = await fetch(`/${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
 
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
+            const data = await res.json();
+            console.log('Respuesta del servidor:', data);
 
-            try {
-                const res = await fetch(`/${action}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-                console.log('Respuesta del servidor:', data);
-
-                if (!res.ok) {
-                    if (data.errors) {
-                        authErrors.textContent = `${data.errors.email || ''} ${data.errors.password || ''}`.trim();
-                    } else if (data.message) {
-                        authErrors.textContent = data.message;
-                    } else {
-                        authErrors.textContent = 'Ocurrió un error inesperado.';
-                    }
-                    return;
+            if (!res.ok) {
+                if (data.errors) {
+                    authErrors.textContent = `${data.errors.email || ''} ${data.errors.password || ''}`.trim();
+                } else if (data.message) {
+                    authErrors.textContent = data.message;
+                } else {
+                    authErrors.textContent = 'Ocurrió un error inesperado.';
                 }
-
-                if (data.user && data.redirect) {
-                    localStorage.setItem('userEmail', data.user.email);
-                    window.location.href = data.redirect;
-                }
-            } catch (err) {
-                console.error('Error al enviar los datos:', err);
-                authErrors.textContent = 'Error de red o del servidor.';
+                return;
             }
-        });
+
+            if (data.user && data.redirect) {
+                localStorage.setItem('userEmail', data.user.email);
+                window.location.href = data.redirect;
+            }
+        } catch (err) {
+            console.error('Error al enviar los datos:', err);
+            authErrors.textContent = 'Error de red o del servidor.';
+        }
+    };
+
+    // Los botones ya no son de tipo 'submit', así que añadimos el evento 'click' para manejar el envío
+    loginBtn?.addEventListener('click', () => {
+        action = 'login';
+        submitForm({ preventDefault: () => { } }); // Llama a la función de envío
+    });
+
+    registerBtn?.addEventListener('click', () => {
+        action = 'signup';
+        submitForm({ preventDefault: () => { } }); // Llama a la función de envío
+    });
+
+    // Se mantiene el evento 'submit' en caso de que se presione ENTER en el formulario
+    if (form) {
+        form.addEventListener('submit', submitForm);
     } else {
         console.warn('No se encontró el formulario #authForm');
     }

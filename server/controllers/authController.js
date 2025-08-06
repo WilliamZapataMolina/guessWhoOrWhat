@@ -37,34 +37,29 @@ const handleErrors = (err) => {
 };
 
 
-// --- FUNCIÓN DE REGISTRO (signup_post) - FUSIONADA ---
-// Ahora usa `createToken` y establece la cookie HttpOnly.
+// --- FUNCIÓN DE REGISTRO (signup_post) ---
 exports.signup_post = async (req, res) => {
-    const { email, password } = req.body;
+    // --- CAMBIO CLAVE: Extraer también el alias del cuerpo de la solicitud ---
+    const { email, password, alias } = req.body;
 
-    // Tu validación de campos requeridos
+    // Tu validación de campos requeridos (Mongoose ya lo hace, pero esto es una buena comprobación rápida)
     if (!email || !password) {
         return res.status(400).json({ message: 'Correo electrónico y contraseña son requeridos.' });
     }
 
     try {
-        // Tu lógica de buscar usuario existente y crear nuevo usuario
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            // Usa el handleErrors para un mensaje más consistente si quieres
-            return res.status(409).json({ errors: { email: 'Este correo electrónico ya está registrado.' } });
-        }
+        // Mongoose ya tiene la validación 'unique', así que el 'try...catch' se encargará de esto
+        // Aquí creamos el usuario con los campos recibidos. Si 'alias' es null o undefined,
+        // Mongoose asignará el valor 'default' que definimos en el modelo.
+        const newUser = await User.create({ email, password, alias });
 
-        const newUser = new User({ email, password }); // Asume que tu pre-save hook en User.js hashea la contraseña
-        await newUser.save();
+        res.clearCookie('jwt');
 
-        // --- CAMBIO CLAVE AQUÍ: CREA EL TOKEN Y ESTABLECE LA COOKIE HTTP-ONLY ---
-        const token = createToken(newUser._id); // Usa la nueva función createToken
-        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000, sameSite: 'Lax' }); // Establece la cookie
-        // --- FIN CAMBIO CLAVE ---
+        const token = createToken(newUser._id);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000, sameSite: 'Lax' });
 
-        // Envía una respuesta al cliente (sin el token en el JSON)
-        res.status(200).json({ user: { email: newUser.email }, redirect: '/game' });
+        // --- CAMBIO CLAVE: Enviar el alias asignado en la respuesta al cliente ---
+        res.status(201).json({ user: { email: newUser.email, alias: newUser.alias }, redirect: '/game' });
 
     } catch (error) {
         // Usa la función handleErrors para un manejo más detallado de los errores de Mongoose
@@ -76,7 +71,6 @@ exports.signup_post = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
     }
 };
-
 
 // --- FUNCIÓN DE INICIO DE SESIÓN (login_post) - FUSIONADA ---
 // Ahora usa `User.login` (método estático en el modelo) y establece la cookie HttpOnly.
@@ -93,6 +87,7 @@ exports.login_post = async (req, res) => {
         // Intenta loguear al usuario usando el método estático User.login
         const user = await User.login(email, password); // Este método debe lanzar un error si las credenciales son incorrectas
 
+        res.clearCookie('jwt'); // Limpia cualquier cookie jwt previa
         // Si el login fue exitoso, crea el token y establece la cookie HTTP-only
         const token = createToken(user._id);
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000, sameSite: 'Lax' });
