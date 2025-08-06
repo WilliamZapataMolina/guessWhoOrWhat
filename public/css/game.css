@@ -169,7 +169,7 @@ body {
 }
 
 /* =================================
-   TABLERO Y TARJETAS DE PERSONAJES (VERSIÓN SIMPLE)
+   TABLERO Y TARJETAS DE PERSONAJES 
    ================================= */
 .character-grid {
   display: grid;
@@ -238,40 +238,55 @@ body {
 }
 
 /* =================================
-   TARJETA DEL PERSONAJE SECRETO
-   ================================= */
+    TARJETA DEL PERSONAJE SECRETO
+    ================================= */
 .game-section#gameBoard {
     display: flex;
     flex-direction: column;
-    align-items: center !important; /* ¡Fuerza el centrado horizontal de los elementos hijos! */
+    align-items: center;
 }
-
+/* Regla para el nuevo contenedor que centra la tarjeta */
+.secret-character-area {
+    width: 100%; /* Aseguramos que ocupe todo el ancho disponible */
+    display: flex; /* Usamos Flexbox para centrar su contenido */
+    justify-content: center; /* Centra horizontalmente a la tarjeta dentro de este contenedor */
+    margin-bottom: 1.5rem; /* Separación con el tablero de juego */
+}
 .secret-character-card {
-    /* No es necesario el margin: 0 auto; ya que el padre se encarga de centrar */
-    width: 170px;
-    height: 220px;
+    width: 200px;
+    height: 260px;
     background: linear-gradient(180deg, #f2fff4 60%, #e6f9ff 100%);
     border-radius: 13px;
-    padding: 10px;
-    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15);
+    padding: 15px; 
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
     border: 3px solid #ffd966;
+    
+    /* ¡AQUÍ ESTÁ LA CLAVE! Aplicamos Flexbox directamente a esta clase */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido verticalmente */
+    align-items: center; /* Centra el contenido horizontalmente */
+
+    z-index: 10;
+    margin-bottom: 2rem;
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
 }
 
 .secret-character-card img {
     width: 100%;
-    height: 170px;
+    height: 180px; /* Un poco más de altura para la imagen */
     object-fit: cover;
     border-radius: 8px;
+    border: 2px solid #ccc;
 }
 
 .secret-character-card p {
-    margin: 0.75rem 0 0 0;
+    margin: 1rem 0 0 0; /* Más espacio entre la imagen y el nombre */
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1.2rem; /* Letra un poco más grande y legible */
     font-weight: 700;
     color: #0d6efd;
-
-    /* También aplicamos la solución para nombres largos */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

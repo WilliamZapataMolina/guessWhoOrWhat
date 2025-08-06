@@ -134,9 +134,17 @@ function formatAttributeQuestion(key, value) {
             case 'occupationType':
                 return `¿Es un/a ${value}?`;
             case 'era':
-                return `¿Es de la ${value}?`;
+                return `¿Es de la era${value}?`;
             case 'enemy':
                 return `¿Tiene a ${value} como enemigo/a?`;
+            case 'continent':
+                return `¿Su continente es ${value}?`;
+            case 'dominantColor':
+                return `¿El color dominante es ${value}?`;
+            case 'heightCategory':
+                return `¿Su categoría de altura es ${value}?`;
+            case 'type':
+                return `¿Es de tipo ${value}?`;
             default:
                 return `¿Tiene ${translations[key]} ${value}?`;
         }

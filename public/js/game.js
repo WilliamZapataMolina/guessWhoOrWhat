@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.reload(); // Recarga para un reinicio limpio
     });
 
-    // Evento del servidor para seleccionar categorías (anteriormente 'startGame' completo)
+    // Evento del servidor para seleccionar categorías 
     socket.on('categoriesSelected', (data) => {
         console.log('Categorías seleccionadas. Ahora elige tu personaje secreto:', data.characters);
         charactersForSelection = data.characters;
@@ -525,8 +525,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const secretCharacterDisplay = document.getElementById('secretCharacterDisplay');
         if (secretCharacterDisplay && character) { // ¡Verifica que el div exista y que el personaje no sea null!
             secretCharacterDisplay.innerHTML = `
-            <img src="${character.imageUrl}" alt="${character.name}" style="width: 100px; height: 100px; object-fit: cover;">
-            <p>${character.name}</p>
+            <div class="secret-character-card">
+              <img src="${character.imageUrl}" alt="${character.name}" class="secret-character-img">
+            <p class="secret-character-name">${character.name}</p>
+            </div>
         `;
             console.log('Personaje secreto renderizado:', character.name);
         } else {
