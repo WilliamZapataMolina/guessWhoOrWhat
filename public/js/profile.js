@@ -122,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 // Actualizar el avatar y alias en la interfaz
                 aliasInput.value = data.alias || userEmail;
-                currentAvatarImg.src = data.avatarUrl || "https://res.cloudinary.com/diddlk54m/image/upload/v1754394747/avatarDefault_rl2tzy.png";
                 gamesPlayedSpan.textContent = data.stats.gamesPlayed !== undefined ? data.stats.gamesPlayed : 0;
                 winsSpan.textContent = data.stats.gamesWon !== undefined ? data.stats.gamesWon : "0";
                 lossesSpan.textContent = data.stats.gamesLost !== undefined ? data.stats.gamesLost : "0";
