@@ -58,11 +58,6 @@ const checkUser = (req, res, next) => {
                 res.locals.user = null;
                 res.clearCookie('jwt');
 
-                /*  if (req.originalUrl === '/game' || req.originalUrl === '/profile') {
-                      console.log(`[checkUser] Usuario no encontrado en ruta protegida, redirigiendo a /`);
-                      return res.redirect('/');
-                  }*/
-
                 return next();
             }
 
