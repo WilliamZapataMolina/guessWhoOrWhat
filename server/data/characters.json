@@ -2940,7 +2940,7 @@
     "description": "Músico, compositor, cantante y activista por la paz británico, cofundador de The Beatles, la banda de rock más influyente de la historia.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": ["músico","cantante"],
+      "occupationType": ["músico","cantante","compositor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Británica",
@@ -2963,7 +2963,7 @@
     "description": "Músico, compositor, cantante y productor británico, famoso por ser miembro de The Beatles y luego tener una exitosa carrera en solitario y con Wings.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["músico","cantante","compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3010,7 +3010,7 @@
     "description": "Músico, cantante, compositor y actor británico, famoso por ser el baterista de The Beatles.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["músico","cantante", "compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3034,7 +3034,7 @@
     "description": "Cantante, compositor y músico británico, conocido por ser el vocalista principal de la banda de rock Queen. Famoso por su poderosa voz y presencia escénica.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["músico","cantante", "compositor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Británica",
@@ -3057,7 +3057,7 @@
     "description": "Cantante, compositor y bailarín estadounidense, conocido como el 'Rey del Pop'. Es uno de los artistas musicales más vendidos de todos los tiempos.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["músico","cantante", "bailarín"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3080,7 +3080,7 @@
     "description": "Cantante, compositor y actor canadiense. Descubierto en YouTube, se convirtió en una superestrella global del pop y R&B.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "músico",
+      "occupationType": ["actor","cantante", "compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Canadiense",
@@ -3104,7 +3104,7 @@
     "description": "Cantante y compositora británica, conocida por su potente voz y sus baladas de soul y pop. Ha ganado múltiples premios Grammy.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "músico",
+      "occupationType": ["cantante", "compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3174,7 +3174,7 @@
     "description": "Cantante, compositora, bailarina y empresaria colombiana, conocida como la 'Reina del Pop Latino'. Famosa por su fusión de ritmos y su habilidad para la danza del vientre.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["músico","cantante", "bailarina"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Colombiana",
@@ -3197,7 +3197,7 @@
     "description": "Cantante y compositor italiano, uno de los artistas más exitosos de su país, con ventas de millones de discos en todo el mundo. Conocido por sus baladas románticas.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Italiana",
@@ -3221,7 +3221,7 @@
     "description": "Cantante y compositor colombiano, figura emblemática de la salsa y la música tropical. Creador de éxitos como 'La Rebelión'.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Colombiana",
@@ -3245,7 +3245,7 @@
     "description": "Cantante, compositor y actor colombiano, pionero en fusionar la música vallenata y los ritmos folclóricos de Colombia con el pop y el rock.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","actor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Colombiana",
@@ -3269,7 +3269,7 @@
     "description": "Cantante de salsa puertorriqueño, conocido como 'El Cantante de los Cantantes'. Una de las voces más importantes en la historia de la salsa.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","músico"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Puertorriqueña",
@@ -3292,7 +3292,7 @@
     "description": "Cantante y compositor colombiano de música vallenata, conocido como 'El Cacique de La Junta'. Uno de los artistas más influyentes y queridos de su género.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Colombiana",
@@ -3317,7 +3317,7 @@
     "description": "Cantante, bajista y compositor venezolano de salsa, conocido como 'El Sonero del Mundo'. Famoso por su energía en el escenario.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","bajista"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Venezolana",
@@ -3341,7 +3341,7 @@
     "description": "Cantante y director de orquesta puertorriqueño, reconocido como 'El Caballero de la Salsa'. Conocido por su estilo elegante y su gran interpretación.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","director"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Puertorriqueña",
@@ -3366,7 +3366,7 @@
     "description": "Cantante, compositor, músico, actor, abogado y político panameño. Es uno de los máximos exponentes de la salsa y ha tenido una destacada carrera en cine y política.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","músico","actor","abogado","político"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Panameña",
@@ -3415,7 +3415,7 @@
     "description": "Actriz, modelo y cantante estadounidense, convertida en un ícono de la cultura pop y la sensualidad. Famosa por películas como 'Los caballeros las prefieren rubias' y 'Con faldas y a lo loco'.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "actriz",
+      "occupationType": ["actriz","modelo","cantante"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3439,7 +3439,7 @@
     "description": "Cantante, compositor, actor y artista estadounidense, conocido por su controversial persona y su banda de rock industrial Marilyn Manson (nombre real Brian Hugh Warner).",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","actor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3464,7 +3464,7 @@
     "description": "Cantante y actor estadounidense, conocido como el 'Rey del Rock and Roll'. Su estilo y carisma lo convirtieron en una de las figuras más importantes de la cultura popular del siglo XX.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3488,7 +3488,7 @@
     "description": "Cantante, compositor y exfutbolista español. Es el artista latino que más discos ha vendido en la historia, conocido por sus baladas románticas.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Española",
@@ -3512,7 +3512,7 @@
     "description": "Cantante, compositor, músico y productor británico, conocido por ser el vocalista principal y cofundador de la icónica banda de rock The Rolling Stones.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","músico","productor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3562,7 +3562,7 @@
     "description": "Cantante y compositor ecuatoriano, conocido como 'El Ruiseñor de América'. Famoso por sus boleros, valses y pasillos.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Ecuatoriana",
@@ -3656,7 +3656,7 @@
     "description": "Cantante, compositora, actriz y productora estadounidense, conocida por su versatilidad musical y sus extravagantes transformaciones visuales. Ha ganado múltiples premios Grammy y un Óscar.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora","actriz","productora"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3680,7 +3680,7 @@
     "description": "Cantante, compositor, multiinstrumentista, productor musical y bailarín estadounidense. Famoso por su versatilidad en géneros como pop, R&B, funk, soul y rock.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3704,7 +3704,7 @@
     "description": "Cantante, compositora, bailarina, actriz y empresaria estadounidense, conocida como la 'Reina del Pop'. Famosa por su innovación musical y visual.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora","bailarina","actriz","empresaria"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3728,7 +3728,7 @@
     "description": "Cantante, compositora, bailarina, actriz y empresaria estadounidense. Exmiembro de Destiny's Child, es una de las artistas más influyentes y exitosas de su generación.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora","bailarina","actriz","empresaria"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3752,7 +3752,7 @@
     "description": "Cantante, compositor y pianista británico. Uno de los artistas musicales más vendidos de todos los tiempos, conocido por sus baladas y su extravagante estilo.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","pianista"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3776,7 +3776,7 @@
     "description": "Cantante y compositora estadounidense. Una de las artistas más exitosas y premiadas de la música contemporánea, conocida por sus narrativas personales en sus canciones.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -3800,7 +3800,7 @@
     "description": "Cantante, compositor, guitarrista y productor británico. Famoso por sus éxitos pop acústicos y su habilidad para componer.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","guitarrista","productor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Británica",
@@ -3954,7 +3954,7 @@
     "description": "Cantante de música ranchera, empresario y actor mexicano, conocido como 'El Charro de Huentitán'. Uno de los máximos exponentes de la música regional mexicana.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actor","empresario"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Mexicana",
@@ -3979,7 +3979,7 @@
     "description": "Cantante, compositor, productor discográfico y actor mexicano, conocido como 'El Divo de Juárez'. Uno de los artistas más prolíficos y exitosos de la música mexicana.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","productor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Mexicana",
@@ -4032,7 +4032,7 @@
     "description": "Actor y cantante mexicano, uno de los ídolos de la Época de Oro del cine mexicano. Famoso por sus papeles de charro y sus canciones rancheras.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "actor",
+      "occupationType": ["cantante","actor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Mexicana",
@@ -4056,7 +4056,7 @@
     "description": "Actor y cantante mexicano, conocido como 'El Charro Cantor'. Fue una de las figuras más emblemáticas de la Época de Oro del cine mexicano y de la música ranchera.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["actor","cantante"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Mexicana",
@@ -4150,7 +4150,7 @@
     "description": "Cantante, actriz y empresaria mexicana, conocida como la 'Reina del Pop Latino'. Famosa por sus telenovelas y su exitosa carrera musical.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actriz","empresaria"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Mexicana",
@@ -4174,7 +4174,7 @@
     "description": "Cantante, compositor y productor español, uno de los artistas más importantes de la música romántica y pop en español. Famoso por éxitos como 'Perdóname' y 'Vivir así es morir de amor'.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","productor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Española",
@@ -4223,7 +4223,7 @@
     "description": "Cantante, compositor y músico español, uno de los artistas latinos más reconocidos a nivel mundial, con múltiples premios Grammy y Grammy Latinos.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Española",
@@ -4247,7 +4247,7 @@
     "description": "Cantante y compositora española que fusiona flamenco con géneros urbanos y pop. Ganadora de múltiples premios Grammy y una de las artistas españolas más influyentes a nivel global en la actualidad.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Española",
@@ -4319,7 +4319,7 @@
     "description": "Director de cine, guionista y productor español, uno de los cineastas más aclamados internacionalmente. Ganador de dos premios Óscar.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "director de cine",
+      "occupationType": ["director de cine","guionista","productor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Española",
@@ -4343,7 +4343,7 @@
     "description": "Actor, director y productor español. Ha tenido una exitosa carrera en Hollywood y es conocido por su versatilidad y carisma.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "actor",
+      "occupationType": ["actor","director","productor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Española",
@@ -4365,7 +4365,7 @@
     "categoryId": {
       "$oid": "687804d628b1a7004cd86edd"
     },
-    "description": "Cantante, bailaora y actriz española, figura legendaria del flamenco, la copla y el cine. Conocida por su temperamento y carisma en el escenario.",
+    "description": "Cantante, bailadora y actriz española, figura legendaria del flamenco, la copla y el cine. Conocida por su temperamento y carisma en el escenario.",
     "attributes": {
       "gender": "femenino",
       "occupationType": "cantante",
@@ -4393,7 +4393,7 @@
     "description": "Cantante y actriz española, famosa por sus interpretaciones de baladas románticas y rancheras, especialmente popular en Hispanoamérica.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actriz"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Española",
@@ -4417,7 +4417,7 @@
     "description": "Cantante, compositor y guitarrista estadounidense, conocido como el líder de la banda de rock Nirvana. Una figura icónica de la música grunge y rock alternativo de los años 90.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","guitarrista"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4442,7 +4442,7 @@
     "description": "Cantante y actor estadounidense, conocido como 'La Voz'. Uno de los artistas musicales más influyentes del siglo XX, famoso por sus interpretaciones de jazz, swing y baladas.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4466,7 +4466,7 @@
     "description": "Cantante, compositor y poeta estadounidense, líder de la banda de rock The Doors. Una figura icónica de la contracultura de los años 60 y el rock psicodélico.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","poeta"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4491,7 +4491,7 @@
     "description": "Cantante, compositor y pianista estadounidense, pionero de la música soul. Ciego desde la infancia, es considerado una de las figuras más influyentes en la historia de la música.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","pianista"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4515,7 +4515,7 @@
     "description": "Cantante, compositor, bailarín y productor estadounidense, conocido como 'El Padrino del Soul'. Su música influyó en el desarrollo del funk, hip hop y R&B.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","bailarín","productor"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4539,7 +4539,7 @@
     "description": "Cantante, compositor y pianista estadounidense. Uno de los artistas musicales más vendidos de todos los tiempos, famoso por sus éxitos de rock y pop.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","pianista"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4588,7 +4588,7 @@
     "description": "Cantante, actriz, bailarina y empresaria estadounidense de origen puertorriqueño. Una de las artistas latinas más influyentes y exitosas a nivel mundial.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","actriz"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4616,7 +4616,7 @@
     "description": "Cantante, compositor y actor estadounidense de origen puertorriqueño. Es el artista de salsa más vendido de todos los tiempos.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","actor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4640,7 +4640,7 @@
     "description": "Cantante, compositor y escritor estadounidense, considerado una de las figuras más influyentes de la música popular del siglo XX. Ganador del Premio Nobel de Literatura.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","escritor"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Estadounidense",
@@ -4928,7 +4928,7 @@
     "description": "Actor, director, artista marcial, productor y cantante de Hong Kong. Famoso por su estilo acrobático de lucha y sus innovadoras escenas de riesgo con toques cómicos.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "actor",
+      "occupationType": ["actor","director","productor","cantante"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "China",
@@ -5026,7 +5026,7 @@
     "description": "Actriz, cantante y productora india. Ganadora de Miss Mundo 2000, es una de las celebridades mejor pagadas y más populares de la India, con una exitosa carrera en Bollywood y Hollywood.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "actriz",
+      "occupationType": ["cantante","actriz","productora"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "India",
@@ -5239,7 +5239,7 @@
     "description": "Cantante, compositor y músico jamaiquino, considerado la mayor leyenda de la música reggae y un icono cultural y de la paz.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositor","músico"],
       "isAlive": false,
       "isFictional": false,
       "nationality": "Jamaiquina",
@@ -5263,7 +5263,7 @@
     "description": "Rapero y cantante jamaiquino de dancehall. Famoso por sus éxitos internacionales que fusionan reggae, hip hop y pop.",
     "attributes": {
       "gender": "masculino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","rapero"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Jamaiquina",
@@ -5287,7 +5287,7 @@
     "description": "Cantante, compositora, modelo y actriz jamaiquina-estadounidense. Conocida por su estilo andrógino, sus éxitos disco y new wave, y sus papeles en cine.",
     "attributes": {
       "gender": "femenino",
-      "occupationType": "cantante",
+      "occupationType": ["cantante","compositora","modelo","actriz"],
       "isAlive": true,
       "isFictional": false,
       "nationality": "Jamaiquina",

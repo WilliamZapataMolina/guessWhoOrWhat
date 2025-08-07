@@ -1,4 +1,6 @@
+//Asegura que el secript se ejecute solo cuando la página está completamente cargada
 document.addEventListener('DOMContentLoaded', () => {
+    //--- Referencias a los elementos de la interfaz de usuario (UI)---
     const logoutBtn = document.getElementById('logoutBtn');
     const avatarGallery = document.querySelector('.avatar-gallery');
     const currentAvatarImg = document.getElementById('currentAvatar');
@@ -9,23 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveAvatarBtn = document.getElementById('saveAvatarBtn');
     const saveAliasBtn = document.getElementById('saveAliasBtn');
 
+    // --- Obtener datos del usuario desde el almacenamiento local ---
+    // Usamos 'localStorage' para obtener la información del usuario que se guardó al iniciar sesión.
     const userEmail = localStorage.getItem('userEmail');
     const userId = localStorage.getItem('userId');
 
+    let selectedAvatarUrl = currentAvatarImg.src;
+
     // --- Cierre de sesión ---
+    // Si el botón de cierre de sesión existe, se añade un evento 'click' para manejar la acción de cerrar sesión.
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
+                //Envía una solicitud GET al servidor para la ruta de 'logout'.
                 const res = await fetch('/logout', { method: 'GET' });
                 if (res.ok) {
+                    // Si el servidor responde exitosamente, elimina los datos del usuario del almacenamiento local.
                     localStorage.removeItem('token');
                     localStorage.removeItem('userEmail');
                     localStorage.removeItem('userId');
                     window.location.replace('/');
                 } else {
+                    // Muestra una alerta si el cierre de sesión falla en el servidor.
                     alert('Error al cerrar sesión. Intenta de nuevo.');
                 }
             } catch (error) {
+                //Muestra una alerta si no se puede conectar con el servidor.
                 alert('No se pudo conectar con el servidor para cerrar sesión.');
             }
         });
@@ -35,22 +46,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.avatar-option').forEach(img => {
         img.addEventListener('click', () => {
             const selectedUrl = img.dataset.url;
+            //Actualiza la imagen del avatar actual con la URL seleccionada.
             currentAvatarImg.src = selectedUrl;
+            //Guarda la URL seleccionada en la variable para usarla más tarde.
             currentAvatarImg.dataset.avatarUrl = selectedUrl;
         });
     });
 
-    let selectedAvatarUrl = currentAvatarImg.src;
-
     //Manejar la selección de un avatar
     avatarGallery.addEventListener('click', (e) => {
+        // Verifica que el clic haya sido en una imagen con la clase 'avatar-option'.
         if (e.target.classList.contains('avatar-option')) {
             //Remueve la selección previa
             document.querySelectorAll('.avatar-option').forEach(img => {
                 img.classList.remove('border', 'border-primary');
             });
+            // Añade un borde a la imagen seleccionada
             e.target.classList.add('boreder', 'border-primary');
 
+            // Actualiza la URL del avatar seleccionado y la imagen principal.
             selectedAvatarUrl = e.target.dataset.url;
             currentAvatarImg.src = selectedAvatarUrl;
         }
@@ -59,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica del botón "Guardar Avatar" ---
     if (saveAvatarBtn) {
         saveAvatarBtn.addEventListener('click', async () => {
+            //Asegura que el usuario haya seleccionado un avatar.
             if (selectedAvatarUrl) {
                 try {
                     const response = await fetch('/profile/update-avatar', {
