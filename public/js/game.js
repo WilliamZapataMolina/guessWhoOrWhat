@@ -1,5 +1,5 @@
 // 1. URL base de tu API y Socket.IO
-const API_BASE_URL = 'http://WilliamZapata:3000/api'; // Asegúrate de que esta URL sea correcta
+const API_BASE_URL = 'http://WilliamZapata:3000/api';
 const SOCKET_IO_URL = 'http://WilliamZapata:3000'; // Debe coincidir con el origen de tu servidor Express/Socket.IO
 
 // 2. Variables globales para el estado del juego
@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Evento de respuesta a la pregunta (recibido por AMBOS jugadores)
     socket.on('questionAnswered', (data) => {
         console.log('Respuesta recibida:', data);
+        console.log('Cliente ha recibido la lista de IDs:', data.charactersToFlip);
 
         // Muestra la pregunta y la respuesta del oponente
         gameStatusMessage.textContent = `Pregunta: "${data.question}" - Respuesta: ${data.answer ? 'Sí' : 'No'}`;
@@ -256,8 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) { // Verifica si el servidor respondió exitosamente
                 console.log('Logout exitoso en el servidor (cookie JWT borrada).');
                 localStorage.removeItem('userEmail'); // Borra el estado de autenticación del cliente
-                // Si también usas 'userToken' en localStorage, bórralo aquí también:
-                // localStorage.removeItem('userToken'); 
+
 
                 if (typeof socket !== 'undefined' && socket.connected) {
                     socket.disconnect(); // Desconecta el socket
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 8. Funciones Auxiliares de UI (Mantener o adaptar) ---
+    // --- 8. Funciones Auxiliares de UI  ---
     function playTurnSound() {
         if (turnSound) {
             turnSound.currentTime = 0; // Reinicia el audio por si aún está sonando
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para renderizar las tarjetas de personajes en el tablero de juego
+
     // Función para renderizar las tarjetas de personajes en el tablero de juego
     function renderBoard(characters) {
         const gameBoardContentDiv = document.getElementById('gameBoardContent');
@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
         characters.forEach(char => {
             const card = document.createElement('div');
             card.classList.add('character-card');
-            card.setAttribute('data-id', char._id);
+            card.setAttribute('data-id', char._id.toString());
             card.innerHTML = `
             <img src="${char.imageUrl}" alt="${char.name}">
             <p>${char.name}</p>
@@ -583,15 +583,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (card) {
             // Usa una clase de estilo diferente para el volteo automático
-            card.classList.toggle('auto-flipped');
             console.log(`toggleCard - ¡Éxito! Tarjeta encontrada y volteada: ${characterId}`);
+            card.classList.toggle('auto-flipped');
+
         } else {
             console.error(`toggleCard - Error: No se encontró la tarjeta con data-id="${characterId}" en el DOM.`);
         }
     }
 
-    // game.js
-
+    // Función para extraer atributos únicos de los personajes
     function generateAttributeQuestions(characters) {
         attributeQuestionsDiv.innerHTML = '';
         const uniqueAttributes = extractUniqueAttributes(characters);

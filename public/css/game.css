@@ -187,15 +187,13 @@ body {
 .character-card.manual-flipped {
     opacity: 0.2;
     filter: grayscale(100%);
-    pointer-events: none;
     cursor: default;
 }
 
 /* EFECTO DE CARTA DESCARTADA AUTOMÁTICAMENTE */
-.character-card.auto-flipped {
+#gameBoardContent .character-card.auto-flipped {
     opacity: 0.2;
     filter: grayscale(100%);
-    pointer-events: none;
     cursor: default;
 }
 

@@ -409,7 +409,7 @@ io.on('connection', (socket) => {
                     return answer ? charAttr !== attrValue : charAttr === attrValue;
                 })
                 .map(char => char._id.toString());
-
+            console.log('Server va a emitir la lista de IDs para voltear:', charactersToFlip);
             // Emitir el evento 'questionAnswered'
             io.to(roomId).emit('questionAnswered', {
                 playerId: socket.id,
