@@ -29,6 +29,10 @@
 
         <section id="gameSetup" class="game-section" style="display: none;">
             <h2>Selecciona una Categoría</h2>
+            <div class="game-options">
+        <input type="checkbox" id="enableTimerCheckbox">
+        <label for="enableTimerCheckbox">Habilitar temporizador (30 segundos)</label>
+            </div>
             <div id="categoryCheckboxes" class="category-grid">
                 </div>
             <button id="startGameBtn" style="display: none;">Iniciar Juego</button>
@@ -56,7 +60,12 @@
                 </div>
 
             <div class="game-controls">
-                <p id="turnIndicator">Esperando turno...</p> <p id="gameStatusMessage"></p> <div class="questions-section">
+                <p id="turnIndicator">Esperando turno...</p> 
+                
+                <div id="timerDisplay"></div> 
+                
+                <p id="gameStatusMessage"></p> 
+                <div class="questions-section">
                     <h3>Haz una Pregunta:</h3>
                     <div id="attributeQuestions">
                         </div>

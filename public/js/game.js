@@ -1,6 +1,6 @@
 // 1. URL base de tu API y Socket.IO
 const API_BASE_URL = 'http://WilliamZapata:3000/api';
-const SOCKET_IO_URL = 'http://WilliamZapata:3000'; // Debe coincidir con el origen de tu servidor Express/Socket.IO
+const SOCKET_IO_URL = 'http://WilliamZapata:3000';
 
 // 2. Variables globales para el estado del juego
 let allCategories = [];
@@ -21,6 +21,13 @@ let currentRoomId = null;
 let isHost = false; // true si este cliente es quien creó la sala y la inició
 let myTurn = false; // true si es el turno de este cliente
 let currentTurnPlayerId = null; // ID del socket del jugador actual en turno
+
+//Varables para el temporizador
+
+let countdownTimer;
+const TOTAL_TIMER_DURATION = 30;
+const VISIBLE_TIMER_THRESHOLD = 10; // Mostrar el temporizador solo si queda menos de 10 segundos
+let gameSettings = { timerEnabled: false };
 
 // 4. Referencias a elementos del DOM (¡asegúrate de que los IDs coincidan con game.html!)
 const loggedInUserEmailSpan = document.getElementById('loggedInUserEmail');
@@ -43,6 +50,8 @@ const roomMessages = document.getElementById('roomMessages');
 // Elementos de Configuración del Juego (Game Setup)
 const categoryCheckboxesDiv = document.getElementById('categoryCheckboxes');
 const startGameButton = document.getElementById('startGameBtn');
+const enableTimerCheckbox = document.getElementById('enableTimerCheckbox'); // Checkbox para habilitar temporizador
+const gameOptionsDiv = document.querySelector('.game-options'); // Div para opciones del juego (como el temporizador)   
 
 // Elementos de Selección de Personaje Secreto
 const secretCharacterSelectionGrid = document.getElementById('secretCharacterSelectionGrid');
@@ -54,6 +63,8 @@ const secretCharacterDisplay = document.getElementById('secretCharacterDisplay')
 const secretCharacterNameSpan = document.getElementById('secretCharacterName'); // Para el nombre del personaje secreto
 const secretCharacterImg = document.getElementById('secretCharacterImg'); // Para la imagen del personaje secreto
 const turnSound = document.getElementById('turn-sound');
+const timerDisplay = document.getElementById('timerDisplay');
+
 
 // Elementos de Controles del Juego
 const gameControls = document.querySelector('.game-controls');
@@ -123,36 +134,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('roomReady', (roomId, player1Id, player2Id, playersInRoom) => {
         console.log(`Sala ${roomId} lista. Jugadores: ${player1Id}, ${player2Id}`);
-        updatePlayerList(playersInRoom); // Asegúrate de pasar los jugadores como un array de objetos si tu updatePlayerList lo espera así
+        updatePlayerList(playersInRoom);
 
-        if (socket.id === player1Id) {
-            // Este jugador es el ANFITRIÓN
-            isHost = true; // Asegúrate de que esta variable global se actualice correctamente aquí
+        // Asigna la variable isHost para ambos jugadores.
+        isHost = (socket.id === player1Id);
 
-            // ¡ACTIVA LA SECCIÓN DE CONFIGURACIÓN DEL JUEGO PARA EL HOST!
-            showGameSetup(); // Esto oculta el lobby y muestra gameSetupSection
-            loadCategories(); // Esto cargará y mostrará las checkboxes de categorías
+        // Llama a la función showGameSetup para manejar la interfaz de ambos roles
+        showGameSetup();
 
-            const waitingMessage = document.getElementById('waitingForHostMessage');
-            if (waitingMessage) { // <--- AÑADIR ESTA VERIFICACIÓN
-                waitingMessage.style.display = 'none';
-            }
-        } else {
-            // Este jugador es el INVITADO
-            isHost = false; // Asegúrate de que esta variable global se actualice correctamente aquí
-            lobbySection.style.display = 'none'; // Oculta el lobby
-            gameSetupSection.style.display = 'block'; // Muestra la sección de setup para el invitado (pero con mensaje de espera)
-
-            const categoryArea = document.getElementById('categorySelectionArea');
-            if (categoryArea) { // <--- AÑADIR ESTA VERIFICACIÓN
-                categoryArea.style.display = 'none';
-
-            } else {
-                console.warn('Advertencia: #categorySelectionArea no encontrado al intentar ocultarlo para el invitado.');
-            }
-            document.getElementById('startGameBtn').style.display = 'none';
-            document.getElementById('waitingForHostMessage').style.display = 'block'; // Muestra el mensaje de espera
-            roomMessages.textContent = '¡Sala lista! Esperando que el anfitrión elija categorías e inicie el juego...'; // Mensaje para el invitado
+        // El anfitrión carga las categorías y el invitado espera.
+        if (isHost) {
+            loadCategories();
+            // document.getElementById('waitingForHostMessage').style.display = 'none';
         }
     });
 
@@ -187,6 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('allSecretsChosen', (gameData) => {
         console.log('¡Ambos personajes secretos elegidos! Juego iniciado:', gameData);
+
+        //Ahora gameData también contiene la configuración del juego
+        gameSettings = gameData.gameSettings;
 
         // Asignar los personajes a la variable global ANTES de renderizar
         boardCharacters = gameData.boardCharacters;
@@ -243,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gameError', (message) => {
+        stopQuestionTimer(); // Detener el temporizador si hay un error
         alert(`Error en el juego: ${message}`);
         console.error('Error del servidor:', message);
         showLobby(); // Volver al lobby en caso de error grave
@@ -305,13 +302,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startGameButton.addEventListener('click', () => {
         selectedCategoryIds = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+
+        //Obtener el estado del nuevo checkbox del temporizador
+        const timerEnabled = enableTimerCheckbox.checked;
+
         if (selectedCategoryIds.length === 0) {
             alert('Por favor, selecciona al menos una categoría para empezar el juego.');
             return;
         }
         if (isHost && currentRoomId) {
             // El host envía las categorías y el total de personajes al servidor
-            socket.emit('startGame', currentRoomId, selectedCategoryIds, TOTAL_GAME_CHARACTERS);
+            socket.emit('startGame', currentRoomId, selectedCategoryIds, TOTAL_GAME_CHARACTERS, timerEnabled);
             gameStatusMessage.textContent = 'Iniciando juego...';
             // El resto de la UI se actualizará cuando se reciba 'categoriesSelected' del servidor
         } else {
@@ -347,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (myTurn && currentRoomId) {
+            stopQuestionTimer(); // Detener el temporizador antes de adivinar
             socket.emit('makeGuess', currentRoomId, guessedChar._id); // Envía el ID del personaje adivinado
         } else if (!myTurn) {
             alert('No es tu turno para adivinar.');
@@ -398,7 +400,26 @@ document.addEventListener('DOMContentLoaded', () => {
         characterSelectionSection.style.display = 'none'; // Asegúrate de ocultarlo
         gameBoardSection.style.display = 'none';
         gameControls.style.display = 'none';
-        startGameButton.style.display = 'block'; // Mostrar botón de iniciar juego
+
+
+        // *** LÓGICA PARA CONTROLAR LA VISIBILIDAD DEL HOST ***
+        if (isHost) {
+            //Si eres el host, muestra todo
+            categoryCheckboxesDiv.style.display = 'block';
+            if (gameOptionsDiv) {
+                gameOptionsDiv.style.display = 'block';
+            }
+            startGameButton.style.display = 'block'; // Mostrar botón de iniciar juego
+            gameStatusMessage.textContent = 'Selecciona las categorías y las opciones del juego para empezar.';
+        } else {
+            // Si no eres el anfitrión, ocultas las opciones y muestras un mensaje de espera
+            categoryCheckboxesDiv.style.display = 'none';
+            if (gameOptionsDiv) {
+                gameOptionsDiv.style.display = 'none';
+            }
+            startGameButton.style.display = 'none';
+            gameStatusMessage.textContent = 'Esperando a que el anfitrión elija las categorías y opciones...';
+        }
     }
 
     // Muestra solo la sección de selección de personaje secreto
@@ -461,12 +482,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Habilitar los botones de pregunta y adivinar
             attributeQuestionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
             guessCharacterBtn.disabled = false;
+
+            if (gameSettings.timerEnabled) {
+                startQuestionTimer();
+            }
+
         } else {
             turnIndicator.textContent = 'Turno del oponente';
             turnIndicator.style.color = 'red';
             // Deshabilitar los botones de pregunta y adivinar
             attributeQuestionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
             guessCharacterBtn.disabled = true;
+            //Detener el temporizador si el turno cambia
+            stopQuestionTimer();
         }
     }
     // Evento de cambio de turno (recibido por AMBOS jugadores)
@@ -479,12 +507,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Llama a la función unificada para actualizar toda la UI
         updateTurnIndicator(nextPlayerId);
-
-
-
     });
-    // --- 9. Funciones de Carga y Renderizado de Componentes ---
 
+    //Manejar la derrota por temporizador
+    socket.on('lossByTimer', (data) => {
+        stopQuestionTimer();
+        const opponentEmail = data.loserEmail === localStorage.getItem('userEmail') ? 'tu oponente' : 'el otro jugador';
+        gameStatusMessage.textContent = `${opponentEmail} se quedó sin tiempo. ¡Has ganado!`;
+        alert(`${opponentEmail} se quedó sin tiempo. ¡Has ganado!`);
+        resetGameBtn.style.display = 'inline-block';
+    });
+
+    // --- 9. Funciones de Carga y Renderizado de Componentes ---
     // Función para cargar categorías desde la API
     async function loadCategories() {
         try {
@@ -644,7 +678,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     });
 
                                     // Vuelve a renderizar las preguntas para actualizar el estado del botón
-                                    generateAttributeQuestions(characters);
+                                    //generateAttributeQuestions(characters);
+                                    //Solo deshabilita el botón actual
+                                    button.classList.add('used');
+                                    button.disabled = true;
                                 }
                             } else {
                                 alert('No es tu turno para preguntar.');
@@ -658,4 +695,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Al iniciar, mostrar el lobby
     showLobby();
+
+    // NUEVAS FUNCIONES PARA EL TEMPORIZADOR
+    function startQuestionTimer() {
+        if (!timerDisplay) {
+            console.error('Error: No se encontró el elemento #timerDisplay en el DOM.');
+            return;
+        }
+
+        let timeLeft = TOTAL_TIMER_DURATION;
+
+        // Detener cualquier temporizador que ya esté en marcha
+        stopQuestionTimer();
+
+        // Ocultar el temporizador al inicio
+        timerDisplay.style.display = 'none';
+
+        countdownTimer = setInterval(() => {
+            timeLeft--;
+
+            if (timeLeft <= VISIBLE_TIMER_THRESHOLD) {
+                timerDisplay.style.display = 'block';
+                timerDisplay.textContent = `Tiempo restante: ${timeLeft}s`;
+
+                if (timeLeft <= 5) {
+                    timerDisplay.style.color = 'red';
+                } else {
+                    timerDisplay.style.color = 'black';
+                }
+            }
+            if (timeLeft <= 0) {
+                stopQuestionTimer();
+                alert('¡Te has quedado sin tiempo!');
+                // Notificar al servidor que el tiempo de este jugador ha expirado
+                socket.emit('timerExpired', currentRoomId);
+            }
+        }, 1000);
+    }
+
+    function stopQuestionTimer() {
+        if (countdownTimer) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+        // Ocultar y resetear el temporizador en la UI
+        if (timerDisplay) {
+            timerDisplay.style.display = 'none';
+            timerDisplay.textContent = '';
+            timerDisplay.style.color = 'black'; // Resetear color
+        }
+    }
 });

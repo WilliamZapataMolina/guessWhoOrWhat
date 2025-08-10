@@ -252,7 +252,7 @@ io.on('connection', (socket) => {
     });
 
     // Manejar el evento 'startGame' (solo el host puede enviar esto)
-    socket.on('startGame', async (roomId, selectedCategoryIds, totalCharacters) => {
+    socket.on('startGame', async (roomId, selectedCategoryIds, totalCharacters, timerEnabled) => {
         const room = rooms.get(roomId);
         // Validaciones clave:
         if (!room) {
@@ -305,9 +305,13 @@ io.on('connection', (socket) => {
             room.boardCharacters = gameBoardCharacters;
             room.gameStarted = false; // El juego aún no ha comenzado del todo, solo la fase de selección
 
+            //añadir la configuración del temporizador a la sala
+            room.gameSettings = { timerEnabled: timerEnabled };
+
             // Notificar a ambos jugadores que las categorías han sido seleccionadas
             io.to(roomId).emit('categoriesSelected', {
                 characters: room.boardCharacters,
+                gameSettings: room.gameSettings,
             });
 
             // Restablecer estados de selección de personajes para la nueva partida
@@ -362,13 +366,15 @@ io.on('connection', (socket) => {
                 boardCharacters: room.boardCharacters,
                 secretCharacter: player1Secret, // Secreto del oponente para player1
                 mySecretCharacter: room.selectedSecretCharacters.get(room.player1Id), // Su propio secreto
-                currentPlayerTurn: room.currentPlayerTurn
+                currentPlayerTurn: room.currentPlayerTurn,
+                gameSettings: room.gameSettings // Enviar la configuración del juego
             });
             io.to(room.player2Id).emit('allSecretsChosen', {
                 boardCharacters: room.boardCharacters,
                 secretCharacter: player2Secret, // Secreto del oponente para player2
                 mySecretCharacter: room.selectedSecretCharacters.get(room.player2Id), // Su propio secreto
-                currentPlayerTurn: room.currentPlayerTurn
+                currentPlayerTurn: room.currentPlayerTurn,
+                gameSettings: room.gameSettings // Enviar la configuración del juego
             });
 
             console.log(`Juego en sala ${roomId} iniciado con personajes secretos elegidos. Turno inicial: ${room.currentPlayerTurn}`);
@@ -521,6 +527,22 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('timerExpired', (roomId) => {
+        // Lógica para manejar la derrota del jugador que se quedó sin tiempo
+        // y notificar al otro jugador que ha ganado.
+        const room = findRoomById(roomId);
+        if (room) {
+            const loserId = socket.id;
+            const winnerId = room.player1Id === loserId ? room.player2Id : room.player1Id;
+            const loserEmail = room.players.find(p => p.id === loserId)?.email;
+
+            // Emitir un evento de victoria al ganador
+            io.to(winnerId).emit('gameOver', { message: `¡El oponente se ha quedado sin tiempo! ¡Has ganado!` });
+
+            // Opcional: Emitir un evento de derrota al que perdió
+            io.to(loserId).emit('gameOver', { message: `Se acabó el tiempo. ¡Has perdido!` });
+        }
+    });
     socket.on('disconnect', async () => {
         const disconnectedUserEmail = socket.userEmail;
         const disconnectedUserId = socket.userId;
