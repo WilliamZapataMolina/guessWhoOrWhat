@@ -527,21 +527,50 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('timerExpired', (roomId) => {
+    socket.on('timerExpired', async (roomId) => {
         // Lógica para manejar la derrota del jugador que se quedó sin tiempo
         // y notificar al otro jugador que ha ganado.
-        const room = findRoomById(roomId);
+        const room = rooms.get(roomId);
         if (room) {
             const loserId = socket.id;
             const winnerId = room.player1Id === loserId ? room.player2Id : room.player1Id;
-            const loserEmail = room.players.find(p => p.id === loserId)?.email;
+            //const loserEmail = room.players.find(p => p.id === loserId)?.email;
+
+            const loserPlayer = room.players.find(p => p.id === loserId);
+            const winnerPlayer = room.players.find(p => p.id === winnerId);
+
+            if (!loserPlayer || !winnerPlayer) return;
+
+            const loserUserId = loserPlayer.userId;
+            const winnerUserId = winnerPlayer.userId;
 
             // Emitir un evento de victoria al ganador
-            io.to(winnerId).emit('gameOver', { message: `¡El oponente se ha quedado sin tiempo! ¡Has ganado!` });
+            io.to(roomId).emit('gameOver', {
+                winnerId: winnerId,
+                message: `¡${room.playerEmails.get(loserId)} se quedó sin tiempo! ${room.playerEmails.get(winnerId)} gana la partida.`
+            });
 
-            // Opcional: Emitir un evento de derrota al que perdió
-            io.to(loserId).emit('gameOver', { message: `Se acabó el tiempo. ¡Has perdido!` });
+            // Actualizar estadísticas
+            try {
+                await User.findOneAndUpdate(
+                    { _id: winnerUserId },
+                    { $inc: { 'stats.gamesPlayed': 1, 'stats.gamesWon': 1 } }
+                );
+
+                await User.findOneAndUpdate(
+                    { _id: loserUserId },
+                    { $inc: { 'stats.gamesPlayed': 1, 'stats.gamesLost': 1 } }
+                );
+
+                console.log(`Estadísticas actualizadas por timeout: Ganador (${winnerUserId}), Perdedor (${loserUserId}).`);
+            } catch (err) {
+                console.error('Error al actualizar estadísticas en timerExpired:', err);
+            }
+
+            // Cerrar la sala
+            rooms.delete(roomId);
         }
+
     });
     socket.on('disconnect', async () => {
         const disconnectedUserEmail = socket.userEmail;
@@ -571,11 +600,6 @@ io.on('connection', (socket) => {
                                 winnerId: opponentPlayer.id,
                                 message: `Tu oponente se ha desconectado. ¡${room.playerEmails.get(opponentPlayer.id)} ganaste!`
                             });
-
-                            // --- LÓGICA DE ACTUALIZACIÓN DE ESTADÍSTICAS ELIMINADA AQUÍ ---
-                            // Ya no se actualizan las victorias/derrotas al desconectarse.
-                            // Solo se actualizan al terminar el juego con una adivinanza.
-
                         }
                         rooms.delete(roomId);
                     } else {
