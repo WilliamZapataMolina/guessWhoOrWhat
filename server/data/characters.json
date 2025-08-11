@@ -169,6 +169,8 @@
   },
   {
     "name": "Reina Isabel II",
+    "birthName": "Isabel Alexandra María Windsor",
+    "nickname": "Isabel II",
     "imageUrl": "https://res.cloudinary.com/diddlk54m/image/upload/v1752847452/330px-Queen_Elizabeth_II_in_March_2015_cksvr4.jpg",
     "categoryId": {
       "$oid": "6878048d28b1a7004cd86eda"

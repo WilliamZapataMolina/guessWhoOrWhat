@@ -571,12 +571,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para renderizar el personaje secreto del JUGADOR en la sección lateral
     function renderSecretCharacter(character) {
         const secretCharacterDisplay = document.getElementById('secretCharacterDisplay');
-        if (secretCharacterDisplay && character) { // ¡Verifica que el div exista y que el personaje no sea null!
+        const secretCharacterDescription = document.getElementById('secretCharacterDescription');
+
+        if (secretCharacterDisplay && secretCharacterDescription && character) { // ¡Verifica que el div exista y que el personaje no sea null!
             secretCharacterDisplay.innerHTML = `
             <div class="secret-character-card">
               <img src="${character.imageUrl}" alt="${character.name}" class="secret-character-img">
             <p class="secret-character-name">${character.name}</p>
         </div>        `;
+
+            // Actualiza el contenedor de la descripción con los datos del personaje
+            secretCharacterDescription.innerHTML = `
+            <h3>Descripción</h3>
+            <p>${character.description || 'Descripción no disponible.'}</p>
+        `;
+
             console.log('Personaje secreto renderizado:', character.name);
         } else {
             console.error('Error: No se encontró secretCharacterDisplay o el personaje es nulo.', secretCharacterDisplay, character);
