@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="thirdparty/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/navbar.css">
     <link rel="stylesheet" href="/css/game.css">
+    <link rel="stylesheet" href="/css/chat.css ">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
 </head>
 <body>
@@ -82,11 +84,28 @@
                 </div>
             </div>
         </section>
+        <button id="chatIcon" class="chat-icon">
+            <i class="fas fa-comments"></i>
+        </button>
+                <div id="chatModal" class="modal-overlay">
+            <div class="chat-modal-content">
+                <div class="chat-header">
+                    <span class="chat-title">Chat de la Sala</span>
+                    <button id="closeChatBtn" class="close-chat-btn">&times;</button>
+                </div>
+                <div id="chatMessages" class="chat-messages">
+                                    </div>
+                <form id="chatForm" class="chat-input-form">
+                    <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                    <button type="submit" class="send-btn">Enviar</button>
+                </form>
+            </div>
+        </div>
     </main>
    
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/game.js"></script>
     <script src="js/questions.js"></script>
-    
+    <script src="js/chat.js"></script>
 </body>
 </html>
