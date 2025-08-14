@@ -305,6 +305,9 @@ io.on('connection', (socket) => {
             room.boardCharacters = gameBoardCharacters;
             room.gameStarted = false; // El juego aún no ha comenzado del todo, solo la fase de selección
 
+            room.selectedCategoryIds = selectedCategoryIds;  // <--- ¡Añade esta línea!
+            room.totalCharacters = totalCharacters;
+
             //añadir la configuración del temporizador a la sala
             room.gameSettings = { timerEnabled: timerEnabled };
 
@@ -467,7 +470,7 @@ io.on('connection', (socket) => {
                     message: `¡${room.playerEmails.get(socket.id)} ha adivinado correctamente! ¡Ganó el juego!`
                 });
                 console.log(`Juego terminado en sala ${roomId}. Ganador: ${socket.id}`);
-                rooms.delete(roomId); // Eliminar la sala
+                //rooms.delete(roomId); 
             } else {
 
                 winnerUserId = opponentPlayer.userId; // El oponente gana
@@ -480,7 +483,7 @@ io.on('connection', (socket) => {
                     message: `¡${room.playerEmails.get(loserId)} adivinó incorrectamente y perdió! ${room.playerEmails.get(winnerId)} gana la partida.`
                 });
                 console.log(`Juego terminado en sala ${roomId}. ${loserId} perdió.`);
-                rooms.delete(roomId); // Eliminar la sala
+                //rooms.delete(roomId); 
             }
             // === Lógica para actualizar las estadísticas ===
             try {
@@ -502,28 +505,52 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('resetGame', (roomId) => {
+    socket.on('resetGame', async (roomId) => {
         const room = rooms.get(roomId);
-        if (room) {
-            // Limpiar completamente el estado de la sala para permitir un nuevo juego
-            room.players = [];
-            room.player1Id = null;
-            room.player2Id = null;
-            room.hostId = null;
-            room.gameStarted = false;
-            room.boardCharacters = [];
-            room.selectedSecretCharacters = new Map();
-            room.readyForGame = new Set();
-            room.currentPlayerTurn = null;
-            room.playerEmails = new Map();
-            room.playerUserIds = new Map(); // Limpiar también este mapa
 
-            // Notificar a todos en la sala (incluido el que lo inició)
-            io.to(roomId).emit('gameReset');
-            console.log(`Juego en sala ${roomId} ha sido reiniciado por el usuario ${socket.id}.`);
-            rooms.delete(roomId); // Elimina la sala, se recreará al unirse
-        } else {
+        if (!room) {
+            // La sala no existe (esto no debería pasar si no la borraste)
             socket.emit('gameError', 'No se encontró la sala para reiniciar.');
+            return;
+        }
+
+        // Asegúrate de que tienes las configuraciones guardadas de la partida anterior
+        if (!room.selectedCategoryIds || room.selectedCategoryIds.length === 0) {
+            socket.emit('gameError', 'No hay categorías seleccionadas para reiniciar el juego. Contacta al host.');
+            return;
+        }
+
+        // 1. Limpiar TODAS las variables de estado del juego
+        room.gameStarted = false;
+        room.boardCharacters = [];
+        room.selectedSecretCharacters = new Map();
+        room.readyForGame = new Set();
+        room.currentPlayerTurn = null;
+
+        try {
+            // 2. Generar una NUEVA lista de personajes para la nueva partida
+            const allPossibleCharacters = await Character.find({
+                categoryId: { $in: room.selectedCategoryIds }
+            });
+
+            // Asegurarse de que hay suficientes personajes
+            if (allPossibleCharacters.length < room.totalCharacters) {
+                socket.emit('gameError', 'No hay suficientes personajes disponibles en las categorías seleccionadas.');
+                return;
+            }
+
+            const shuffledCharacters = allPossibleCharacters.sort(() => 0.5 - Math.random());
+            const newCharacters = shuffledCharacters.slice(0, room.totalCharacters);
+
+            room.boardCharacters = newCharacters; // ¡Guardar la nueva lista en la sala!
+
+            // 3. Notificar a todos en la sala. Es CRUCIAL enviar la nueva lista.
+            io.to(roomId).emit('gameReset', newCharacters);
+
+            console.log(`Juego en sala ${roomId} ha sido reiniciado. Nuevos personajes enviados.`);
+        } catch (error) {
+            console.error('Error al generar nuevos personajes para el reinicio:', error);
+            io.to(roomId).emit('gameError', 'Error interno al reiniciar el juego.');
         }
     });
 

@@ -356,15 +356,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     resetGameBtn.addEventListener('click', () => {
-        if (confirm('¿Estás seguro de que quieres reiniciar el juego y volver al lobby?')) {
+        if (confirm('¿Estás seguro de que quieres reiniciar el juego? Esto te permitirá volver a elegir personajes en la misma sala.')) {
             // Notificar al servidor que este jugador quiere reiniciar
             socket.emit('resetGame', currentRoomId);
         }
     });
-    // Manejar el evento de reseteo del servidor
-    socket.on('gameReset', () => {
-        alert('El juego ha sido reiniciado. Volviendo al lobby.');
-        window.location.reload(); // Recargar para un reinicio limpio
+
+    socket.on('gameReset', (characters) => {
+        console.log('El juego ha sido reiniciado por el servidor. Limpiando estado...');
+
+        // 1. Limpiar TODAS las variables de estado del juego del lado del cliente
+        secretCharacter = null;
+        selectedSecretCharacter = null;
+        boardCharacters = characters; // <-- ¡Usar la nueva lista del servidor!
+        askedQuestions = new Map();
+        myTurn = false;
+        currentTurnPlayerId = null;
+
+        // 2. Ocultar todos los elementos de la partida anterior
+        lobbySection.style.display = 'none';
+        gameSetupSection.style.display = 'none';
+        gameBoardSection.style.display = 'none';
+
+        // 3. Mostrar la sección de selección de personaje
+        characterSelectionSection.style.display = 'block';
+
+        // 4. Renderizar la cuadrícula con los nuevos personajes recibidos
+        renderCharacterSelectionGrid(characters); // <-- Renderizar con la nueva lista
+
+        // 5. Limpiar los mensajes y botones de la partida anterior
+        confirmSecretCharacterBtn.style.display = 'none';
+        confirmSecretCharacterBtn.disabled = false;
+        secretSelectionMessage.textContent = 'Selecciona tu personaje secreto:';
+        gameStatusMessage.textContent = '';
+        turnIndicator.textContent = '';
+        resetGameBtn.style.display = 'none';
+
+        alert('El juego ha sido reiniciado. Por favor, selecciona un nuevo personaje.');
     });
 
 
