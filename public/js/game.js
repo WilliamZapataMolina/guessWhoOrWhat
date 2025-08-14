@@ -141,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Llama a la función showGameSetup para manejar la interfaz de ambos roles
         showGameSetup();
+        startChat(socket, roomId);
 
         // El anfitrión carga las categorías y el invitado espera.
         if (isHost) {

@@ -160,6 +160,25 @@ io.on('connection', (socket) => {
     // Al conectar, emitir el email del usuario de vuelta al cliente
     socket.emit('loggedInSuccessfully', userEmail);
 
+    // Manejar el evento 'chatMessage' del cliente
+    socket.on('chatMessage', (roomId, message) => {
+        // 1. Verificar si la sala existe
+        const room = rooms.get(roomId);
+        if (!room) {
+            console.error(`Error: Se recibió un mensaje para una sala que no existe: ${roomId}`);
+            return;
+        }
+
+        // 2. Obtener el email del remitente a partir del socket
+        const senderEmail = socket.userEmail;
+
+        // 3. Enviar el mensaje a TODOS los clientes en esa sala
+        // La función io.to() permite enviar eventos a todos los clientes en un 'room' específico.
+        io.to(roomId).emit('chatMessage', {
+            sender: senderEmail,
+            message: message
+        });
+    });
 
     socket.on('joinRoom', (roomId) => {
         const userEmail = socket.userEmail;

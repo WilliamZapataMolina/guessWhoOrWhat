@@ -1,4 +1,4 @@
-function iniciarChat(socket, roomId) {
+function startChat(socket, roomId) {
     const chatIcon = document.getElementById('chatIcon');
     const chatModal = document.getElementById('chatModal');
     const closeChatBtn = document.getElementById('closeChatBtn');
@@ -6,8 +6,7 @@ function iniciarChat(socket, roomId) {
     const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
 
-    // Envía un mensaje de conexión al servidor
-    socket.emit('joinRoom', roomId);
+
 
     //Muestra el modal del chat al hacer clcik en el ícono
     chatIcon.addEventListener('click', () => {
