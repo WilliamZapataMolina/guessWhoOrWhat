@@ -33,9 +33,9 @@ function startChat(socket, roomId) {
         if (isDragging) {
             let newLeft = e.clientX - offsetX;
             let newTop = e.clientY - offsetY;
-            const navbarHeight = 64;// Altura de la barra de navegación
+            const navbarHeight = 0;// Altura de la barra de navegación
 
-            newLeft = Math.max(10, Math.min(window.innerWidth - chatModal.offsetWidth, newLeft));
+            newLeft = Math.max(0.5, Math.min(window.innerWidth - chatModal.offsetWidth, newLeft));
             newTop = Math.max(navbarHeight, Math.min(window.innerHeight - chatModal.offsetHeight, newTop));
 
             chatModal.style.left = `${newLeft}px`;
