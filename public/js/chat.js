@@ -6,36 +6,67 @@ function startChat(socket, roomId) {
     const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
     const chatHeader = document.querySelector('.chat-header');
+    const resizeHandle = document.querySelector('.chat-resize-handle');
 
-    //Lógica para que la ventana sea arrastrable
+    //Estado
     let isDragging = false;
-    let offsetX, offsetY;
+    let isResizing = false;
+    let offsetX = 0, offsetY = 0;
 
+    //Dragging
     chatHeader.addEventListener('mousedown', (e) => {
         isDragging = true;
+        chatModal.style.transform = 'none';
         offsetX = e.clientX - chatModal.offsetLeft;
         offsetY = e.clientY - chatModal.offsetTop;
         chatModal.style.transition = 'none';
     });
 
+    //Logica para renderizar el chat(resizing)
+    resizeHandle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isResizing = true;
+        chatModal.style.transition = 'none'; // Desactiva la transición durante el redimensionamiento
+    });
+
     document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        chatModal.style.left = `${e.clientX - offsetX}px`;
-        chatModal.style.top = `${e.clientY - offsetY}px`;
+        if (isDragging) {
+            let newLeft = e.clientX - offsetX;
+            let newTop = e.clientY - offsetY;
+            const navbarHeight = 64;// Altura de la barra de navegación
+
+            newLeft = Math.max(10, Math.min(window.innerWidth - chatModal.offsetWidth, newLeft));
+            newTop = Math.max(navbarHeight, Math.min(window.innerHeight - chatModal.offsetHeight, newTop));
+
+            chatModal.style.left = `${newLeft}px`;
+            chatModal.style.top = `${newTop}px`;
+
+        } else if (isResizing) {
+            const rect = chatModal.getBoundingClientRect();
+            const newWidth = e.clientX - rect.left;
+            const newHeight = e.clientY - rect.top;
+
+            //Aplica los nuevos valores, respetando los límites mínimos
+            chatModal.style.width = `${Math.max(250, newWidth)}px`; // Ancho mínimo de 250px
+            chatModal.style.height = `${Math.max(300, newHeight)}px`; // Alto mínimo de 150px
+        }
+
     });
 
     document.addEventListener('mouseup', () => {
         isDragging = false;
+        isResizing = false;
         chatModal.style.transition = 'transform 0.2s'; // Añade una transición suave al soltar
     });
 
     //Muestra el modal del chat al hacer clcik en el ícono
     chatIcon.addEventListener('click', () => {
-        chatModal.style.display = 'block';
+        chatModal.style.display = 'flex';
+        chatModal.style.left = '50%';
+        chatModal.style.top = '50%';
+        chatModal.style.transform = 'translate(-50%, -50%)';
         chatIcon.classList.remove('has-new-messages');
-
-        //Asegura que los mensajes se muestren desde el final
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        scrollToBottom();
     });
 
     //Oculta el modal del chat al hacer click en el botón de cerrar
@@ -60,7 +91,9 @@ function startChat(socket, roomId) {
         if (chatModal.style.display === 'none') {
             chatIcon.classList.add('has-new-messages'); // Muestra la notificación si el chat está cerrado
         }
-        // Desplazarse al último mensaje
-        chatMessages.scrolltop = chatMessages.scrollHeight;
+        scrollToBottom();
     });
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 }
