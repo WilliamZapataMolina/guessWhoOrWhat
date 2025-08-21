@@ -1,0 +1,65 @@
+
+//---------------------------------Estructura de la aplicación guessWhoOrWhat-----------------------------------//
+
+guessWhoOrWhat/
+│
+├── public/
+│   ├── audio/
+│   │   ├── sound-1-167181.mp3
+│   │   
+│   ├── css/ 
+│	│	├── chat.css
+│   │   ├── game.css
+│   │   ├── index.css
+│   │   ├── navbar.css
+│   │   ├── profile.css
+│   │   
+│   ├── images/  
+│   │   ├── avatars images             
+│   │    
+│   ├── js/ 
+│   │   ├── chat.js
+│   │   ├── game.js
+│   │   ├── login.js
+│   │   ├── profile.js   
+│   │   ├── questions.js   
+│   │
+│   ├── thirdparty/ 
+│          ├── bootstrap/
+│                ├── css/
+│                ├── js/
+│   
+├── server/
+│   ├── controllers
+│   │       ├── authController.js
+│   │       ├── categoryController.js
+│   │       ├── characterController.js
+│   │   
+│   ├── data/  
+│   │     ├── character.json
+│   │   
+│   ├── middleware/ 
+│   │     ├── authMiddleware.js
+│   │    
+│   ├── models/
+│   │     ├── Character.js
+│   │     ├── User.js
+│   │     ├── Category.js
+│   │
+│   ├── routes/
+│   │     ├── authRoutes.js
+│   │     ├── categoryRoutes.js
+│   │     ├── characterRoutes.js
+│   │     ├── profileRoutes.js
+│   │
+│   ├── server.js  ✅ (archivo que maneja la lógica del servidor)
+│   ├── .env       ✅ (archivo que maneja parte de la configuración mongodb, jwt_secret y cloudinary)
+│    
+├── views/
+      ├── parts/
+      │    ├── footer.ejs
+      │    ├── navbar.ejs
+      │
+      ├── game.ejs
+      ├── index.ejs
+      ├── profile.ejs

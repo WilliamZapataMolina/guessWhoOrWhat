@@ -9681,7 +9681,7 @@
   {
     "name": "Haile Gebrselassie",
     "nickname": "El Emperador",
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Haile_Gebrselassie_2008.jpg/800px-Haile_Gebrselassie_2008.jpg",
+    "imageUrl": "https://res.cloudinary.com/diddlk54m/image/upload/v1753177126/330px-Haile_Gebrselassie_at_Vienna_City_Marathon_2011_aybt2g.jpg",
     "categoryId": {
       "$oid": "6878050428b1a7004cd86edf"
     },
@@ -10272,8 +10272,8 @@
   {
     "name": "Hank Aaron",
     "birthName":"Henry Louis Aaron",
-    "nickname": "Hammerin' Hank",
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Hank_Aaron_1974.jpg/800px-Hank_Aaron_1974.jpg",
+    "nickname": ["Hammerin' Hank","Hammer"],
+    "imageUrl": "https://res.cloudinary.com/diddlk54m/image/upload/v1753180705/Hank_Aaron_1974_atz1ii.jpg",
     "categoryId": {
       "$oid": "6878050428b1a7004cd86edf"
     },
@@ -10419,7 +10419,7 @@
   },
   {
     "name": "Charles Darwin",
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Charles_Darwin_portrait.jpg/330px-Charles_Darwin_portrait.jpg",
+    "imageUrl": "https://res.cloudinary.com/diddlk54m/image/upload/v1755732823/330px-Charles_Darwin_portrait_oyfzec.jpg",
     "categoryId": {
       "$oid": "6878056d28b1a7004cd86ee5"
     },
