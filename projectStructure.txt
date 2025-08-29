@@ -3,19 +3,19 @@
 
 guessWhoOrWhat/
 │
-├── public/
-│   ├── audio/
+├── public/ ✅ (frontend)
+│   ├── audio/ ✅ (directorio con el audio usado para el temporizador)
 │   │   ├── sound-1-167181.mp3
 │   │   
-│   ├── css/ 
+│   ├── css/ ✅ (directorio con los diferentes css para las páginas incluye css para navbar)
 │	│	├── chat.css
 │   │   ├── game.css
 │   │   ├── index.css
 │   │   ├── navbar.css
 │   │   ├── profile.css
 │   │   
-│   ├── images/  
-│   │   ├── avatars images             
+│   ├── images/  ✅ (directorio con imágenes de los avatars)
+│   │   ├── avatar1.png ...           
 │   │    
 │   ├── js/ 
 │   │   ├── chat.js
@@ -29,14 +29,14 @@ guessWhoOrWhat/
 │                ├── css/
 │                ├── js/
 │   
-├── server/
-│   ├── controllers
+├── server/ ✅ (backend)
+│   ├── controllers/
 │   │       ├── authController.js
 │   │       ├── categoryController.js
 │   │       ├── characterController.js
 │   │   
 │   ├── data/  
-│   │     ├── character.json
+│   │     ├── character.json ✅ (base de datos usada en mongoDB)
 │   │   
 │   ├── middleware/ 
 │   │     ├── authMiddleware.js
@@ -53,13 +53,13 @@ guessWhoOrWhat/
 │   │     ├── profileRoutes.js
 │   │
 │   ├── server.js  ✅ (archivo que maneja la lógica del servidor)
-│   ├── .env       ✅ (archivo que maneja parte de la configuración mongodb, jwt_secret y cloudinary)
+│   ├── .env       ✅ (variables de entorno mongodb, jwt_secret y cloudinary)
 │    
 ├── views/
       ├── parts/
       │    ├── footer.ejs
       │    ├── navbar.ejs
       │
-      ├── game.ejs
+      ├── game.ejs 
       ├── index.ejs
       ├── profile.ejs

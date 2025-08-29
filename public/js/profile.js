@@ -1,4 +1,4 @@
-//Asegura que el secript se ejecute solo cuando la página está completamente cargada
+//Asegura que el script se ejecute solo cuando la página está completamente cargada
 document.addEventListener('DOMContentLoaded', () => {
     //--- Referencias a los elementos de la interfaz de usuario (UI)---
     const logoutBtn = document.getElementById('logoutBtn');

@@ -1,16 +1,16 @@
 const express = require('express'); // Importar el framework Express
 const http = require('node:http'); // Módulo HTTP de Node.js para crear el servidor
-const { Server } = require('socket.io'); // Importa Server de Socket.IO
-const path = require('node:path'); // Módulo Path de Node.js para manejar rutas de archivos
-const os = require('node:os'); // Módulo OS de Node.js para obtener información del sistema
-const mongoose = require('mongoose'); // Importa Mongoose para manejar la base de datos MongoDB
-const dotenv = require('dotenv'); // Para cargar variables de entorno desde .env
-const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes
-const cookieParser = require('cookie-parser');
-const authController = require('./controllers/authController');
-const jwt = require('jsonwebtoken');
-const User = require('./models/User');
-//const reconnectionTimers = new Map(); // Para manejar reconexiones de Socket.IO
+const { Server } = require('socket.io'); // Importa Server de Socket.IO para la comunicación en tiempo real
+const path = require('node:path'); // Módulo Path de Node.js para manejar y resolver rutas de archivos
+const os = require('node:os'); // Módulo OS de Node.js para obtener información del sistema operativo (como IPs)
+const mongoose = require('mongoose'); // Importa Mongoose para gestionar la base de datos MongoDB
+const dotenv = require('dotenv'); // Para cargar variables de entorno desde el archivo .env
+const cloudinary = require('cloudinary').v2; // Importa Cloudinary para manejar imágenes en la nube
+const cookieParser = require('cookie-parser');//Middleware para parsear las cookies de las peticiones
+const authController = require('./controllers/authController');//Controlador para la lógica de autenticación
+const jwt = require('jsonwebtoken');//Biblioteca para trabajar con JSON Web Tokens
+const User = require('./models/User');//Modelo de Mongoose para el usuario
+
 
 // Importar las rutas modularizadas
 const authRoutes = require('./routes/authRoutes');
@@ -25,17 +25,15 @@ const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 const Character = require('./models/Character');
 const Category = require('./models/Category');
 
-
-
 dotenv.config(); // Carga las variables de entorno desde el archivo .env
 
 const app = express(); // Crea una instancia de la aplicación Express
 
-// Configuración EJS como motor de plantillas
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../views'));
+// Configuración de Express y middlewares
+app.set('view engine', 'ejs');//Configura EJS como el motor de plantillas
+app.set('views', path.join(__dirname, '../views'));//Define la ubicación de las vistas
 
-// Configuración de Cloudinary
+// Configuración de Cloudinary con credenciales del archivo .env
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -44,8 +42,9 @@ cloudinary.config({
 
 const server = http.createServer(app); // Crea un servidor HTTP usando la aplicación Express
 const PORT = process.env.PORT || 3000; // Define el puerto del servidor, usa 3000 por defecto
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/guessWhoOrWhat'; // URI de conexión a MongoDB
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/guessWhoOrWhat'; // Define la URI de conexión a MongoDB
 
+//------Middlewares para procesar las peticiones HTTP-------------------//
 // Middleware para servir archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -55,9 +54,10 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware para parsear JSON en las solicitudes (necesario para registro/login)
 app.use(express.json());
 
+// Middleware para parsear cookies
 app.use(cookieParser());
 
-// Aplicar checkUser en TODAS las rutas
+// Aplicar checkUser para verificar el usuario en TODAS las rutas
 app.use(checkUser);
 
 // --- Conexión a MongoDB ---
@@ -69,22 +69,25 @@ mongoose.connect(MONGO_URI)
         console.error('Error al conectar a MongoDB:', error);
     });
 
-// Usar rutas modularizadas
-// Estas rutas manejan las solicitudes a la API
+//---------------- Usar rutas modularizadas-----------------//
+// Estas rutas manejan las solicitudes a la API(rutas modulares)
 app.use(authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/characters', characterRoutes);
 
 // Ruta principal para servir el archivo HTML
 app.get('/', checkUser, (req, res) => {
+    //Redirige si el usuario ya está autenticado
     if (res.locals.user) {
         return res.redirect('/profile'); // o '/game' u otra ruta
     }
+    //Renderiza la vista de inicio si no hay un usuario
     res.render('index', { user: res.locals.user });
 });
 
 // Ruta para el juego (ruta protegida)
 app.get('/game', (req, res) => {
+    //Si no hay un usuario, redirige al inicio
     if (!res.locals.user) return res.redirect('/');
     res.render('game', { user: res.locals.user });
 });
@@ -94,9 +97,9 @@ app.get('/profile', requireAuth, checkUser, (req, res) => {
     res.render('profile', { user: res.locals.user, footer: true });
 });
 
-app.use('/profile', profileRoutes);
+app.use('/profile', profileRoutes);//verificar esta línea
 
-app.get('/logout', authController.logout_get);
+app.get('/logout', authController.logout_get);//Ruta para cerrar sesión
 
 // --- Lógica de Socket.IO (comunicación en tiempo real y lógica de juego) ---
 
@@ -112,6 +115,7 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     },
     allowRequest: (req, callback) => {
+        //Habilita el uso de cookies para la utenticación de sockets
         cookieParser()(req, {}, () => {
             callback(null, true);
         });
@@ -125,18 +129,18 @@ io.use(async (socket, next) => {
 
     if (token) {
         try {
+            // Verifica y decodifica el token
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
             const user = await User.findById(decodedToken.id);
             if (user) {
+                //Si el usuario existe, adjunta su información al socket
                 socket.userId = user._id.toString();
                 socket.userEmail = user.email;
 
-                // === CAMBIO CRUCIAL ===
-                // Simplemente actualizamos el socket activo. La nueva conexión SIEMPRE gana.
+                // Se actualiza el socket activo. La nueva conexión SIEMPRE gana.
                 activeUserSockets.set(socket.userId, socket.id);
                 console.log(`[Middleware] Usuario ${socket.userEmail} (ID: ${socket.userId}) autenticado. Socket activo: ${activeUserSockets.get(socket.userId)}`);
-
-                next();
+                next();//Permite la conexión
             } else {
                 console.log('Usuario no encontrado en la base de datos.');
                 next(new Error('Auth failed: User not found.'));
@@ -151,6 +155,7 @@ io.use(async (socket, next) => {
     }
 });
 
+//Evento principal que se dispara al conectar un nuevo socket
 io.on('connection', (socket) => {
     const { userEmail, userId } = socket;
 
@@ -180,6 +185,7 @@ io.on('connection', (socket) => {
         });
     });
 
+    //Lógica para unirse a una sala
     socket.on('joinRoom', (roomId) => {
         const userEmail = socket.userEmail;
         const userId = socket.userId;
@@ -189,7 +195,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // --- NUEVA LÓGICA: Verificar si el usuario ya está en CUALQUIER sala y notificar ---
+        // Verificar si el usuario ya está en CUALQUIER sala y notificar ---
         let currentRoomIdForUser = null;
         for (const [rId, r] of rooms.entries()) {
             if (r.players.some(p => p.userId === userId)) {
@@ -202,8 +208,7 @@ io.on('connection', (socket) => {
             // El usuario ya está en una sala.
             if (currentRoomIdForUser === roomId) {
                 // Es el mismo usuario en la misma sala (reconexión o nueva pestaña).
-                // La lógica de reconexión actual es robusta y no requiere cambios aquí.
-                // Para simplificar, simplemente notificamos que ya está en la sala.
+                // Notificar que ya está en la sala.
                 console.log(`Usuario ${userEmail} (${socket.id}) ya está en la sala ${roomId}. Reenviando estado de la sala.`);
                 const room = rooms.get(roomId);
                 io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players);
@@ -215,13 +220,12 @@ io.on('connection', (socket) => {
                 return;
             }
         }
-        // --- FIN DE LA NUEVA LÓGICA ---
 
         // Si llega a este punto, el usuario no está en ninguna sala, por lo que podemos proceder.
         let room = rooms.get(roomId);
 
         if (!room) {
-            // Lógica para crear una nueva sala
+            // Si la sala no existe la crea con su estado inicial
             room = {
                 id: roomId,
                 players: [],
@@ -247,7 +251,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // 5. Asignar player1Id o player2Id y añadir el jugador.
+        // 5. Asignar el rol de jugador (player1 o player2) y añade el socket a la sala
         if (room.players.length === 0) {
             room.player1Id = socket.id;
         } else if (room.players.length === 1) {
@@ -264,6 +268,7 @@ io.on('connection', (socket) => {
 
         io.to(roomId).emit('playerJoined', userEmail, room.players.length, room.players);
 
+        //Si la sala está llena, notifica a ambos jugadores que la partida puede comenzar 
         if (room.players.length === 2) {
             console.log(`Sala ${roomId} está lista para jugar. Jugadores: ${room.players.map(p => p.email).join(', ')}`);
             io.to(roomId).emit('roomReady', roomId, room.player1Id, room.player2Id, room.players);
@@ -273,7 +278,7 @@ io.on('connection', (socket) => {
     // Manejar el evento 'startGame' (solo el host puede enviar esto)
     socket.on('startGame', async (roomId, selectedCategoryIds, totalCharacters, timerEnabled) => {
         const room = rooms.get(roomId);
-        // Validaciones clave:
+        // Validaciones previas al inicio del juego
         if (!room) {
             socket.emit('gameError', 'La sala no existe.');
             return;
@@ -308,6 +313,7 @@ io.on('connection', (socket) => {
                 return;
             }
 
+            //Busca todos los persanajes que pertenecen a las categorías seleccionadas
             const allPossibleCharacters = await Character.find({
                 categoryId: { $in: selectedCategoryIds }
             });
@@ -316,7 +322,7 @@ io.on('connection', (socket) => {
                 socket.emit('gameError', `No hay suficientes personajes (${allPossibleCharacters.length}) para las categorías seleccionadas. Se necesitan ${totalCharacters}.`);
                 return;
             }
-            // Barajar los personajes y seleccionar el número requerido para el tablero
+            // Baraja y selecciona un subconjunto de personajes para el tablero
             const shuffledCharacters = allPossibleCharacters.sort(() => 0.5 - Math.random());
             const gameBoardCharacters = shuffledCharacters.slice(0, totalCharacters);
 
@@ -383,7 +389,7 @@ io.on('connection', (socket) => {
             const player1Secret = room.selectedSecretCharacters.get(room.player2Id);
             const player2Secret = room.selectedSecretCharacters.get(room.player1Id);
 
-            // Emitir a cada jugador su personaje secreto (el del oponente)
+            // Emite el evento a cada jugador con sus respectivos personajes secretos.
             io.to(room.player1Id).emit('allSecretsChosen', {
                 boardCharacters: room.boardCharacters,
                 secretCharacter: player1Secret, // Secreto del oponente para player1
@@ -409,6 +415,7 @@ io.on('connection', (socket) => {
     // Manejar las preguntas de los jugadores
     socket.on('askQuestion', (roomId, questionDetails) => {
         const room = rooms.get(roomId);
+        // Valida que el juego haya comenzado y que sea el turno del jugador
         if (room && room.gameStarted && socket.id === room.currentPlayerTurn) {
             const { attrKey, attrValue, question } = questionDetails;
             console.log('Pregunta recibida del cliente:', question);
@@ -438,7 +445,8 @@ io.on('connection', (socket) => {
                 })
                 .map(char => char._id.toString());
             console.log('Server va a emitir la lista de IDs para voltear:', charactersToFlip);
-            // Emitir el evento 'questionAnswered'
+
+            // Emite la respuesta de la pregunta y la lista de cartas a voltear a toda la sala.
             io.to(roomId).emit('questionAnswered', {
                 playerId: socket.id,
                 question: question,
@@ -489,7 +497,7 @@ io.on('connection', (socket) => {
                     message: `¡${room.playerEmails.get(socket.id)} ha adivinado correctamente! ¡Ganó el juego!`
                 });
                 console.log(`Juego terminado en sala ${roomId}. Ganador: ${socket.id}`);
-                //rooms.delete(roomId); 
+
             } else {
 
                 winnerUserId = opponentPlayer.userId; // El oponente gana
@@ -502,7 +510,7 @@ io.on('connection', (socket) => {
                     message: `¡${room.playerEmails.get(loserId)} adivinó incorrectamente y perdió! ${room.playerEmails.get(winnerId)} gana la partida.`
                 });
                 console.log(`Juego terminado en sala ${roomId}. ${loserId} perdió.`);
-                //rooms.delete(roomId); 
+
             }
             // === Lógica para actualizar las estadísticas ===
             try {
@@ -524,22 +532,22 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Lógica para reiniciar el juego
     socket.on('resetGame', async (roomId) => {
         const room = rooms.get(roomId);
 
         if (!room) {
-            // La sala no existe (esto no debería pasar si no la borraste)
+            // La sala no existe
             socket.emit('gameError', 'No se encontró la sala para reiniciar.');
             return;
         }
 
-        // Asegúrate de que tienes las configuraciones guardadas de la partida anterior
         if (!room.selectedCategoryIds || room.selectedCategoryIds.length === 0) {
             socket.emit('gameError', 'No hay categorías seleccionadas para reiniciar el juego. Contacta al host.');
             return;
         }
 
-        // 1. Limpiar TODAS las variables de estado del juego
+        // 1. Limpiar TODAS las variables de estado del juego para empezar de nuevo
         room.gameStarted = false;
         room.boardCharacters = [];
         room.selectedSecretCharacters = new Map();
@@ -573,6 +581,7 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Lógica para el temporizador
     socket.on('timerExpired', async (roomId) => {
         // Lógica para manejar la derrota del jugador que se quedó sin tiempo
         // y notificar al otro jugador que ha ganado.
@@ -580,8 +589,6 @@ io.on('connection', (socket) => {
         if (room) {
             const loserId = socket.id;
             const winnerId = room.player1Id === loserId ? room.player2Id : room.player1Id;
-            //const loserEmail = room.players.find(p => p.id === loserId)?.email;
-
             const loserPlayer = room.players.find(p => p.id === loserId);
             const winnerPlayer = room.players.find(p => p.id === winnerId);
 
@@ -618,11 +625,14 @@ io.on('connection', (socket) => {
         }
 
     });
+
+    // Logica al desconectar un cliente
     socket.on('disconnect', async () => {
         const disconnectedUserEmail = socket.userEmail;
         const disconnectedUserId = socket.userId;
         console.log(`Un usuario se ha desconectado: ${socket.id} (Email: ${disconnectedUserEmail})`);
 
+        // Si el socket que se desconecta es el principal, lo elimina del registro
         if (activeUserSockets.get(disconnectedUserId) === socket.id) {
             activeUserSockets.delete(disconnectedUserId);
             console.log(`Usuario ${disconnectedUserEmail} (ID: ${disconnectedUserId}) limpiado de sesiones activas.`);
@@ -630,6 +640,7 @@ io.on('connection', (socket) => {
             console.log(`Socket antiguo ${socket.id} de ${disconnectedUserEmail} se desconectó, pero no era el socket principal registrado.`);
         }
 
+        //Itera sobre todas las salas para encontrar al jugador desconectado
         for (const [roomId, room] of rooms.entries()) {
             const playerIndex = room.players.findIndex(p => p.userId === disconnectedUserId);
 
@@ -649,6 +660,7 @@ io.on('connection', (socket) => {
                         }
                         rooms.delete(roomId);
                     } else {
+                        // Si el juego no había empezado, solo lo elimina de la lista de jugadores
                         room.players.splice(playerIndex, 1);
                         room.playerEmails.delete(socket.id);
                         room.playerUserIds.delete(socket.id);
@@ -674,7 +686,7 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 
-    // Obtener y mostrar la IP local o nombre de host
+    // Obtener y mostrar la IP local o nombre de host para facilitar la conexión a otros dispositivos
     const networkInterfaces = os.networkInterfaces();
     let localIp = 'localhost';
 
